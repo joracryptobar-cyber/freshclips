@@ -3,48 +3,59 @@ const cheerio = require('cheerio');
 
 async function updateClips() {
     try {
-        console.log('Загрузка канала https://t.me/s/fresh_clips...');
-        // Загружаем публичную веб-версию канала (без прокси!)
-        const response = await fetch('https://t.me/s/fresh_clips');
-        const html = await response.text();
-        
-        // Загружаем HTML в парсер
-        const $ = cheerio.load(html);
-        const clips = [];
+        console.log('Начинаем сбор клипов...');
+        let allClips = [];
+        let url = 'https://t.me/s/fresh_clips';
+        let pagesToFetch = 5; // Сколько страниц истории листать (около 100 постов)
 
-        // Ищем все посты
-        $('.tgme_widget_message').each((i, el) => {
-            const videoThumb = $(el).find('.tgme_widget_message_video_thumb');
-            
-            if (videoThumb.length > 0) {
-                // Достаем картинку
-                const style = videoThumb.attr('style') || '';
-                const imgMatch = style.match(/url\(['"]?([^'")]+)['"]?\)/);
-                const image = imgMatch ? imgMatch[1] : '';
+        for (let i = 0; i < pagesToFetch; i++) {
+            console.log(`Загрузка страницы ${i + 1}...`);
+            const response = await fetch(url);
+            const html = await response.text();
+            const $ = cheerio.load(html);
 
-                // Достаем ссылку на пост
-                const dateLinkEl = $(el).find('.tgme_widget_message_date');
-                const url = dateLinkEl.attr('href') || 'https://t.me/fresh_clips';
+            let pageClips = [];
 
-                // Вытаскиваем название клипа из текста
-                let title = 'Свежий клип 🔥';
-                const textEl = $(el).find('.tgme_widget_message_text');
-                if (textEl.length > 0) {
-                    let rawText = textEl.text().split('\n')[0].replace('Премьера клипа! ', '');
-                    title = rawText.length > 70 ? rawText.substring(0, 67) + '...' : rawText;
+            // Ищем все посты на текущей странице
+            $('.tgme_widget_message').each((index, el) => {
+                const videoThumb = $(el).find('.tgme_widget_message_video_thumb');
+                
+                if (videoThumb.length > 0) {
+                    const style = videoThumb.attr('style') || '';
+                    const imgMatch = style.match(/url\(['"]?([^'")]+)['"]?\)/);
+                    const image = imgMatch ? imgMatch[1] : '';
+
+                    const dateLinkEl = $(el).find('.tgme_widget_message_date');
+                    const postUrl = dateLinkEl.attr('href') || 'https://t.me/fresh_clips';
+
+                    let title = 'Свежий клип 🔥';
+                    const textEl = $(el).find('.tgme_widget_message_text');
+                    if (textEl.length > 0) {
+                        let rawText = textEl.text().split('\n')[0].replace('Премьера клипа! ', '');
+                        title = rawText.length > 70 ? rawText.substring(0, 67) + '...' : rawText;
+                    }
+
+                    pageClips.push({ title, url: postUrl, image });
                 }
+            });
 
-                // Сохраняем во временный массив
-                clips.push({ title, url, image });
-            }
-        });
+            // На странице посты идут сверху вниз (от старых к новым). 
+            // Переворачиваем, чтобы новые были первыми, и добавляем в общую базу.
+            allClips = allClips.concat(pageClips.reverse());
 
-        // Берем последние 12 клипов (переворачиваем массив, чтобы новые были первыми)
-        const finalClips = clips.reverse().slice(0, 12);
+            // Ищем кнопку "Показать более старые" для перехода на следующую страницу
+            const moreLink = $('.tme_messages_more').attr('href');
+            if (!moreLink) break; // Если истории больше нет - останавливаемся
+            
+            url = 'https://t.me' + moreLink;
+        }
 
-        // Записываем данные в файл clips.json
-        fs.writeFileSync('clips.json', JSON.stringify(finalClips, null, 4));
-        console.log(`Успешно! Сохранено ${finalClips.length} клипов в clips.json.`);
+        // Удаляем возможные дубликаты (по URL)
+        const uniqueClips = Array.from(new Map(allClips.map(item => [item.url, item])).values());
+
+        // Сохраняем все собранные клипы в файл
+        fs.writeFileSync('clips.json', JSON.stringify(uniqueClips, null, 4));
+        console.log(`Успешно! Сохранено ${uniqueClips.length} клипов в clips.json.`);
 
     } catch (error) {
         console.error('Ошибка при обновлении клипов:', error);
