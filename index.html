@@ -154,22 +154,22 @@
         /* ======= АДАПТАЦИЯ ДЛЯ ТЕЛЕФОНОВ ======= */
         @media (max-width: 768px) {
             .cover-image { 
-                height: 120px; /* Еще сильнее срезали высоту фона */
+                height: 120px; 
                 background-image: url('mobile_cover.png');
                 background-size: cover; 
                 background-position: center; 
             }
             
-            /* Новая структура: СЕТКА для идеального расположения */
+            /* Новая сетка профиля: аватар и текст слева, кнопки справа внизу */
             .profile-info { 
                 display: grid;
-                grid-template-columns: auto 1fr; /* 1 колонка - аватар, 2 колонка - всё остальное (кнопки) */
+                grid-template-columns: 1fr auto; /* 1 колонка для текста, 2 колонка для кнопок */
                 grid-template-areas: 
-                    "avatar actions"
-                    "details details";
-                align-items: center;
-                padding: 12px 15px 15px; 
-                gap: 10px 15px; 
+                    "avatar ."
+                    "details actions";
+                align-items: end; /* Прижимаем всё к нижнему краю */
+                padding: 10px 15px 15px; 
+                gap: 5px 15px; 
             }
             
             .avatar-container { 
@@ -178,29 +178,32 @@
             } 
             .avatar { width: 75px; height: 75px; border-width: 3px; } 
             
-            /* Кнопки теперь встраиваются справа от аватара */
+            .profile-details { 
+                grid-area: details;
+                margin-top: 0; 
+                padding-bottom: 2px; /* Чуть выравниваем с кнопками */
+            } 
+            .profile-details h1 { font-size: 21px; } 
+            .profile-details p { font-size: 12px; margin-top: 2px; }
+            
+            /* Кнопки в нижнем правом углу */
             .profile-actions { 
                 grid-area: actions;
                 flex-direction: column; 
-                width: 100%;
+                width: 145px; /* Сократили длину кнопок примерно на 40% */
                 gap: 8px; 
-                margin-top: -25px; /* Слегка приподнимаем кнопки, чтобы они встали вровень с выступающим яблоком */
+                margin-top: 0; 
+                justify-self: end; /* Прижимаем вправо */
             }
             .btn { 
                 width: 100%; 
                 text-align: center; 
                 box-sizing: border-box; 
-                padding: 7px 15px; 
-                font-size: 12px; 
+                padding: 7px 10px; 
+                font-size: 11px; 
+                white-space: nowrap; /* Запрещаем тексту переноситься на новую строку */
             }
 
-            .profile-details { 
-                grid-area: details;
-                margin-top: 0px; 
-            } 
-            .profile-details h1 { font-size: 22px; } 
-            .profile-details p { font-size: 13px; margin-top: 2px; }
-            
             /* Делаем клипы в 2 колонки */
             .grid { 
                 grid-template-columns: repeat(2, 1fr); 
