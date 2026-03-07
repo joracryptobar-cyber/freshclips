@@ -6,7 +6,7 @@ async function updateClips() {
         console.log('Начинаем сбор клипов...');
         let allClips = [];
         let url = 'https://t.me/s/fresh_clips';
-        let pagesToFetch = 5; // Сколько страниц истории листать (около 100 постов)
+        let pagesToFetch = 5; // Сколько страниц истории листать
 
         for (let i = 0; i < pagesToFetch; i++) {
             console.log(`Загрузка страницы ${i + 1}...`);
@@ -31,8 +31,20 @@ async function updateClips() {
                     let title = 'Свежий клип 🔥';
                     const textEl = $(el).find('.tgme_widget_message_text');
                     if (textEl.length > 0) {
-                        let rawText = textEl.text().split('\n')[0].replace('Премьера клипа! ', '');
+                        // 1. Берем весь текст поста
+                        let rawText = textEl.text();
+                        
+                        // 2. Убираем стартовую фразу, если она есть
+                        rawText = rawText.replace('Премьера клипа! ', '');
+                        
+                        // 3. МАГИЯ: отрезаем всё, начиная с первого символа '#', и убираем лишние пробелы по краям
+                        rawText = rawText.split('#')[0].trim();
+                        
+                        // 4. Ограничиваем длину (чтобы слишком длинные названия не ломали верстку)
                         title = rawText.length > 70 ? rawText.substring(0, 67) + '...' : rawText;
+                        
+                        // Если после очистки название оказалось пустым (например, пост состоял только из хэштегов)
+                        if (!title) title = 'Свежий клип 🔥';
                     }
 
                     pageClips.push({ title, url: postUrl, image });
@@ -45,7 +57,7 @@ async function updateClips() {
 
             // Ищем кнопку "Показать более старые" для перехода на следующую страницу
             const moreLink = $('.tme_messages_more').attr('href');
-            if (!moreLink) break; // Если истории больше нет - останавливаемся
+            if (!moreLink) break; 
             
             url = 'https://t.me' + moreLink;
         }
