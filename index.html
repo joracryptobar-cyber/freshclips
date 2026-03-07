@@ -85,7 +85,7 @@
         .action-icon-btn { width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.1); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; padding: 0; }
         .action-icon-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
         .action-icon-btn.liked { color: #ff4757; background: rgba(0,0,0,0.8); border-color: #ff4757; }
-        .action-icon-btn svg { width: 16px; height: 16px; }
+        .action-icon-btn svg { width: 16px; height: 16px; pointer-events: none; }
 
         .play-btn { width: 50px; height: 50px; background: rgba(0, 0, 0, 0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; backdrop-filter: blur(4px); transition: all 0.2s; border: 2px solid transparent; }
         .clip-card:hover .play-btn { background: var(--accent); transform: scale(1.1); border-color: #fff; }
@@ -123,8 +123,8 @@
             .clip-info { padding: 8px 10px; gap: 8px; }
             .clip-info h3 { font-size: 12px; }
             .play-btn { width: 36px; height: 36px; font-size: 14px; }
-            .action-icon-btn { width: 28px; height: 28px; }
-            .action-icon-btn svg { width: 14px; height: 14px; }
+            .action-icon-btn { width: 32px; height: 32px; }
+            .action-icon-btn svg { width: 16px; height: 16px; }
             .new-badge { font-size: 9px; padding: 3px 6px; top: 6px; left: 6px; } 
             .meta-info { font-size: 10px; flex-direction: column; align-items: flex-start; gap: 3px; } 
             #back-to-top { bottom: 20px; right: 20px; width: 45px; height: 45px; }
@@ -235,7 +235,6 @@
             }
         }
 
-        // Вспомогательная функция для перевода текста "12.5K" в число 12500 для сортировки
         function parseViews(viewStr) {
             if (!viewStr) return 0;
             let str = viewStr.toString().toUpperCase().replace(',', '.');
@@ -272,7 +271,12 @@
             });
         }
 
+        // --- ЖЕЛЕЗОБЕТОННАЯ ЛОГИКА КНОПОК ---
         function toggleFavorite(event, url) {
+            // Блокируем клик по самой ссылке на видео
+            event.preventDefault();
+            event.stopPropagation();
+            
             const btn = event.currentTarget;
             const index = savedFavorites.indexOf(url);
             if (index > -1) {
@@ -296,12 +300,49 @@
             applyFilters();
         }
 
+        // --- ЖЕЛЕЗОБЕТОННАЯ ЛОГИКА SHARE ---
         function shareClip(event, url, title) {
-            if (navigator.share) {
-                navigator.share({ title: title, text: '🔥 Зацени свежий клип!', url: url }).catch(console.error);
+            // Блокируем проваливание клика
+            event.preventDefault();
+            event.stopPropagation();
+            
+            // Если браузер поддерживает нативный Share (и сайт на https)
+            if (navigator.share && window.isSecureContext) {
+                navigator.share({ 
+                    title: title, 
+                    text: '🔥 Зацени свежий клип!\n', 
+                    url: url 
+                }).catch((error) => console.log('Шаринг отменен', error));
             } else {
-                navigator.clipboard.writeText(url);
-                alert('Ссылка на клип скопирована!');
+                // Железобетонный запасной вариант с копированием ссылки
+                fallbackCopyTextToClipboard(url);
+            }
+        }
+
+        // Запасная функция копирования текста в буфер обмена
+        function fallbackCopyTextToClipboard(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    alert('Ссылка на клип скопирована в буфер обмена!');
+                }).catch(err => {
+                    prompt('Скопируйте ссылку вручную:', text);
+                });
+            } else {
+                // Старый дедовский метод (работает даже без https)
+                let textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed";
+                textArea.style.opacity = 0;
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    alert('Ссылка на клип скопирована в буфер обмена!');
+                } catch (err) {
+                    prompt('Скопируйте ссылку вручную:', text);
+                }
+                document.body.removeChild(textArea);
             }
         }
 
@@ -334,13 +375,11 @@
                 return matchesSearch && matchesMonth && matchesFav;
             });
 
-            // ПРИМЕНЯЕМ СОРТИРОВКУ
             if (sortMode === 'oldest') { 
                 filteredClipsData.reverse(); 
             } else if (sortMode === 'az') { 
                 filteredClipsData.sort((a, b) => a.title.localeCompare(b.title)); 
             } else if (sortMode === 'popular') {
-                // Сортируем по просмотрам: от бОльшего к меньшему
                 filteredClipsData.sort((a, b) => parseViews(b.views) - parseViews(a.views));
             }
 
