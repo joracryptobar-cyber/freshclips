@@ -27,45 +27,43 @@ async function updateClips() {
 
                     const dateLinkEl = $(el).find('.tgme_widget_message_date');
                     const postUrl = dateLinkEl.attr('href') || 'https://t.me/fresh_clips';
+                    
+                    // ИЗВЛЕКАЕМ ДАТУ И ВРЕМЯ ИЗ ТЕЛЕГРАМ
+                    let timestamp = '';
+                    const timeEl = $(el).find('.tgme_widget_message_date time');
+                    if (timeEl.length > 0) {
+                        timestamp = timeEl.attr('datetime') || ''; // Получаем формат 2024-03-05T12:00:00+00:00
+                    }
 
                     let title = 'Свежий клип 🔥';
                     const textEl = $(el).find('.tgme_widget_message_text');
                     if (textEl.length > 0) {
-                        // 1. Берем весь текст поста
                         let rawText = textEl.text();
-                        
-                        // 2. Убираем стартовую фразу, если она есть
                         rawText = rawText.replace('Премьера клипа! ', '');
-                        
-                        // 3. МАГИЯ: отрезаем всё, начиная с первого символа '#', и убираем лишние пробелы по краям
                         rawText = rawText.split('#')[0].trim();
-                        
-                        // 4. Ограничиваем длину (чтобы слишком длинные названия не ломали верстку)
                         title = rawText.length > 70 ? rawText.substring(0, 67) + '...' : rawText;
-                        
-                        // Если после очистки название оказалось пустым (например, пост состоял только из хэштегов)
                         if (!title) title = 'Свежий клип 🔥';
                     }
 
-                    pageClips.push({ title, url: postUrl, image });
+                    // Добавляем timestamp в базу
+                    pageClips.push({ title, url: postUrl, image, timestamp });
                 }
             });
 
-            // На странице посты идут сверху вниз (от старых к новым). 
-            // Переворачиваем, чтобы новые были первыми, и добавляем в общую базу.
+            // На странице посты идут сверху вниз. Переворачиваем, чтобы новые были первыми.
             allClips = allClips.concat(pageClips.reverse());
 
-            // Ищем кнопку "Показать более старые" для перехода на следующую страницу
+            // Ищем кнопку "Показать более старые"
             const moreLink = $('.tme_messages_more').attr('href');
             if (!moreLink) break; 
             
             url = 'https://t.me' + moreLink;
         }
 
-        // Удаляем возможные дубликаты (по URL)
+        // Удаляем дубликаты
         const uniqueClips = Array.from(new Map(allClips.map(item => [item.url, item])).values());
 
-        // Сохраняем все собранные клипы в файл
+        // Сохраняем в файл
         fs.writeFileSync('clips.json', JSON.stringify(uniqueClips, null, 4));
         console.log(`Успешно! Сохранено ${uniqueClips.length} клипов в clips.json.`);
 
