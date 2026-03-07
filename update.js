@@ -6,7 +6,7 @@ async function updateClips() {
         console.log('Начинаем сбор клипов...');
         let allClips = [];
         let url = 'https://t.me/s/fresh_clips';
-        let pagesToFetch = 5; // Сколько страниц истории листать
+        let pagesToFetch = 5; 
 
         for (let i = 0; i < pagesToFetch; i++) {
             console.log(`Загрузка страницы ${i + 1}...`);
@@ -16,7 +16,6 @@ async function updateClips() {
 
             let pageClips = [];
 
-            // Ищем все посты на текущей странице
             $('.tgme_widget_message').each((index, el) => {
                 const videoThumb = $(el).find('.tgme_widget_message_video_thumb');
                 
@@ -28,42 +27,47 @@ async function updateClips() {
                     const dateLinkEl = $(el).find('.tgme_widget_message_date');
                     const postUrl = dateLinkEl.attr('href') || 'https://t.me/fresh_clips';
                     
-                    // ИЗВЛЕКАЕМ ДАТУ И ВРЕМЯ ИЗ ТЕЛЕГРАМ
                     let timestamp = '';
                     const timeEl = $(el).find('.tgme_widget_message_date time');
                     if (timeEl.length > 0) {
-                        timestamp = timeEl.attr('datetime') || ''; // Получаем формат 2024-03-05T12:00:00+00:00
+                        timestamp = timeEl.attr('datetime') || ''; 
                     }
 
                     let title = 'Свежий клип 🔥';
+                    let tags = []; // Массив для хранения хэштегов
+                    
                     const textEl = $(el).find('.tgme_widget_message_text');
                     if (textEl.length > 0) {
                         let rawText = textEl.text();
                         rawText = rawText.replace('Премьера клипа! ', '');
+                        
+                        // Извлекаем все хэштеги из текста
+                        const foundTags = rawText.match(/#[a-zA-Zа-яА-ЯёЁ0-9_]+/g);
+                        if (foundTags) {
+                            tags = foundTags;
+                        }
+
+                        // Очищаем название от хэштегов
                         rawText = rawText.split('#')[0].trim();
                         title = rawText.length > 70 ? rawText.substring(0, 67) + '...' : rawText;
                         if (!title) title = 'Свежий клип 🔥';
                     }
 
-                    // Добавляем timestamp в базу
-                    pageClips.push({ title, url: postUrl, image, timestamp });
+                    // Сохраняем в базу вместе с тегами
+                    pageClips.push({ title, url: postUrl, image, timestamp, tags });
                 }
             });
 
-            // На странице посты идут сверху вниз. Переворачиваем, чтобы новые были первыми.
             allClips = allClips.concat(pageClips.reverse());
 
-            // Ищем кнопку "Показать более старые"
             const moreLink = $('.tme_messages_more').attr('href');
             if (!moreLink) break; 
             
             url = 'https://t.me' + moreLink;
         }
 
-        // Удаляем дубликаты
         const uniqueClips = Array.from(new Map(allClips.map(item => [item.url, item])).values());
 
-        // Сохраняем в файл
         fs.writeFileSync('clips.json', JSON.stringify(uniqueClips, null, 4));
         console.log(`Успешно! Сохранено ${uniqueClips.length} клипов в clips.json.`);
 
