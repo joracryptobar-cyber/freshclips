@@ -87,7 +87,12 @@
             color: #111; 
             border: none;
             cursor: pointer;
-            display: inline-block;
+            
+            /* Делаем кнопку контейнером для иконки и текста */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px; /* Расстояние между иконкой и текстом */
         }
 
         .btn-primary, .btn-secondary { background-color: var(--btn-green); }
@@ -160,40 +165,31 @@
                 background-position: center; 
             }
             
-            /* Новая сетка профиля: аватар и текст слева, кнопки справа внизу */
             .profile-info { 
                 display: grid;
-                grid-template-columns: 1fr auto; /* 1 колонка для текста, 2 колонка для кнопок */
+                grid-template-columns: 1fr auto; 
                 grid-template-areas: 
                     "avatar ."
                     "details actions";
-                align-items: end; /* Прижимаем всё к нижнему краю */
+                align-items: end; 
                 padding: 10px 15px 15px; 
                 gap: 5px 15px; 
             }
             
-            .avatar-container { 
-                grid-area: avatar;
-                margin-top: -45px; 
-            } 
+            .avatar-container { grid-area: avatar; margin-top: -45px; } 
             .avatar { width: 75px; height: 75px; border-width: 3px; } 
             
-            .profile-details { 
-                grid-area: details;
-                margin-top: 0; 
-                padding-bottom: 2px; /* Чуть выравниваем с кнопками */
-            } 
+            .profile-details { grid-area: details; margin-top: 0; padding-bottom: 2px; } 
             .profile-details h1 { font-size: 21px; } 
             .profile-details p { font-size: 12px; margin-top: 2px; }
             
-            /* Кнопки в нижнем правом углу */
             .profile-actions { 
                 grid-area: actions;
                 flex-direction: column; 
-                width: 145px; /* Сократили длину кнопок примерно на 40% */
+                width: 145px; 
                 gap: 8px; 
                 margin-top: 0; 
-                justify-self: end; /* Прижимаем вправо */
+                justify-self: end; 
             }
             .btn { 
                 width: 100%; 
@@ -201,14 +197,17 @@
                 box-sizing: border-box; 
                 padding: 7px 10px; 
                 font-size: 11px; 
-                white-space: nowrap; /* Запрещаем тексту переноситься на новую строку */
+                white-space: nowrap; 
+                gap: 6px; /* Чуть уменьшаем отступ между иконкой и текстом на телефоне */
+            }
+            
+            /* Уменьшаем сами иконки для мобилки */
+            .btn svg {
+                width: 14px;
+                height: 14px;
             }
 
-            /* Делаем клипы в 2 колонки */
-            .grid { 
-                grid-template-columns: repeat(2, 1fr); 
-                gap: 12px; 
-            }
+            .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
             .clip-info { padding: 8px 10px; }
             .clip-info h3 { font-size: 12px; }
             .play-btn { width: 36px; height: 36px; font-size: 14px; }
@@ -230,8 +229,18 @@
                     <p>✓ Канал в Telegram</p>
                 </div>
                 <div class="profile-actions">
-                    <a href="https://t.me/fresh_clips" target="_blank" class="btn btn-primary">Наш телеграм канал</a>
-                    <a href="https://vk.com/fresh_clips" target="_blank" class="btn btn-secondary">Мы в VK</a>
+                    <a href="https://t.me/fresh_clips" target="_blank" class="btn btn-primary">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.94z"/>
+                        </svg>
+                        Наш телеграм канал
+                    </a>
+                    <a href="https://vk.com/fresh_clips" target="_blank" class="btn btn-secondary">
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                            <path d="M15.07 2H8.93C3.33 2 2 3.33 2 8.93v6.14C2 20.67 3.33 22 8.93 22h6.14C20.67 22 22 20.67 22 15.07V8.93C22 3.33 20.67 2 15.07 2zm2.6 13.92h-1.37c-.63 0-.81-.5-1.93-1.64-1-.98-1.4-1.12-1.68-1.12-.38 0-.5.12-.5.71v1.39c0 .42-.13.66-1.33.66-1.96 0-4.08-1.19-5.53-3.29C4.05 10.74 3.68 8.65 3.68 8.27c0-.21.09-.36.42-.36h1.37c.3 0 .42.15.53.44.75 2.12 1.95 3.9 2.47 3.9.21 0 .31-.1.31-.62V9.38c-.05-.8-.37-1.16-1.02-1.25-.26-.04-.15-.31.07-.46.33-.23.94-.25 1.5-.25.75 0 1 .05 1.2.14.31.14.38.46.38 1.48v1.84c0 .35.15.48.27.48.24 0 .47-.13.98-.63 1.13-1.17 1.93-3.3 1.93-3.3.09-.27.28-.42.58-.42h1.37c.43 0 .54.21.45.5-.23.82-1.65 2.76-2.12 3.37-.36.45-.48.62 0 1.25 1.18 1.52 2.15 2.56 2.5 3.14.16.27.02.66-.41.66z"/>
+                        </svg>
+                        Мы в VK
+                    </a>
                 </div>
             </div>
         </div>
