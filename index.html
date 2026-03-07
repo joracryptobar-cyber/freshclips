@@ -16,115 +16,74 @@
             --accent: #8cc63f;         
         }
         
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            background-color: var(--bg-color); 
-            color: var(--text-main); 
-            margin: 0; 
-            padding: 0; 
-        }
-
-        /* ======= КАСТОМНЫЙ СКРОЛЛБАР ДЛЯ ПК ======= */
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 0; }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg-color); }
         ::-webkit-scrollbar-thumb { background: #3a3a40; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--btn-green); }
 
-        .main-wrapper {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 0 15px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
+        .main-wrapper { max-width: 1200px; margin: 20px auto; padding: 0 15px; min-height: 100vh; display: flex; flex-direction: column; }
 
-        /* ======= БЛОК ПРОФИЛЯ (ШАПКА) ======= */
-        .profile-header {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            margin-bottom: 30px;
-            border: 2px solid var(--accent); 
-        }
-
-        .cover-image {
-            width: 100%; height: 320px; background-color: #000000;
-            background-image: url('https://sun9-3.userapi.com/impf/DiuXQCGE1N_Wty_HCbV8CoCBdQ3L07UdtuVRwA/thJWeQCYs8I.jpg?size=1920x768&quality=95&crop=26,0,1697,678&sign=d9c1b7989607c18bc3cb14a7521395d3&c_uniq_tag=NWFmbEvYJ29Sw7iJDXKRKD8AWpt3hJgpwRq95Whq6Go&type=cover_group');
-            background-size: cover; background-position: center 100%; background-repeat: no-repeat;
-        }
-
+        /* ======= БЛОК ПРОФИЛЯ ======= */
+        .profile-header { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.5); margin-bottom: 25px; border: 2px solid var(--accent); }
+        .cover-image { width: 100%; height: 320px; background-color: #000000; background-image: url('https://sun9-3.userapi.com/impf/DiuXQCGE1N_Wty_HCbV8CoCBdQ3L07UdtuVRwA/thJWeQCYs8I.jpg?size=1920x768&quality=95&crop=26,0,1697,678&sign=d9c1b7989607c18bc3cb14a7521395d3&c_uniq_tag=NWFmbEvYJ29Sw7iJDXKRKD8AWpt3hJgpwRq95Whq6Go&type=cover_group'); background-size: cover; background-position: center 100%; background-repeat: no-repeat; }
         .profile-info { padding: 15px 30px 25px; display: flex; align-items: center; flex-wrap: wrap; gap: 20px; position: relative; }
         .avatar-container { margin-top: -65px; position: relative; }
         .avatar { width: 130px; height: 130px; border-radius: 50%; border: 4px solid var(--card-bg); background-color: #fff; object-fit: cover; }
         .profile-details { flex-grow: 1; margin-top: 5px; }
         .profile-details h1 { margin: 0; font-size: 26px; font-weight: 600; letter-spacing: 0.5px; }
         .profile-details p { margin: 5px 0 0 0; color: var(--text-muted); font-size: 14px; display: flex; align-items: center; gap: 5px; }
-
         .profile-actions { display: flex; gap: 12px; margin-top: 10px; }
-        .btn {
-            padding: 10px 24px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px;
-            transition: all 0.2s; color: #111; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; line-height: 1; 
-        }
+        .btn { padding: 10px 24px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.2s; color: #111; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; line-height: 1; }
         .btn-icon { width: 21px; height: 21px; flex-shrink: 0; display: block; }
         .btn-primary, .btn-secondary { background-color: var(--btn-green); }
         .btn-primary:hover, .btn-secondary:hover { background-color: var(--btn-green-hover); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(140, 198, 63, 0.3); }
 
-        /* ======= ПОИСК ======= */
-        .search-container { margin-bottom: 30px; }
-        #search-input {
-            width: 100%; padding: 16px 25px; border-radius: 30px; background-color: var(--card-bg);
-            border: 1px solid rgba(255, 255, 255, 0.05); color: var(--text-main); font-size: 16px;
-            box-sizing: border-box; outline: none; transition: all 0.3s ease; font-family: inherit; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        /* ======= ЛИПКАЯ ПАНЕЛЬ (ПОИСК И ФИЛЬТРЫ) ======= */
+        .sticky-control-panel {
+            position: sticky; top: 0; z-index: 100; 
+            background: rgba(10, 10, 12, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            padding: 15px 0; margin-bottom: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
-        #search-input::placeholder { color: var(--text-muted); }
-        #search-input:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(140, 198, 63, 0.2); }
+        
+        .search-sort-row { display: flex; gap: 12px; margin-bottom: 15px; }
+        
+        .search-wrapper { position: relative; flex-grow: 1; }
+        #search-input { width: 100%; padding: 14px 45px 14px 20px; border-radius: 25px; background-color: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-main); font-size: 15px; box-sizing: border-box; outline: none; transition: all 0.3s ease; font-family: inherit; }
+        #search-input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(140, 198, 63, 0.2); }
+        
+        /* Крестик очистки поиска */
+        #clear-search { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); display: none; font-size: 18px; width: 24px; height: 24px; text-align: center; line-height: 24px; border-radius: 50%; }
+        #clear-search:hover { color: #fff; background: rgba(255,255,255,0.1); }
 
-        /* ======= СЕТКА КЛИПОВ И АНИМАЦИИ ======= */
-        .section-title { font-size: 20px; margin-bottom: 20px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        /* Сортировка */
+        .sort-select { padding: 0 15px; border-radius: 25px; background-color: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-main); outline: none; cursor: pointer; font-family: inherit; font-size: 14px; min-width: 150px; }
+        .sort-select:focus { border-color: var(--accent); }
+
+        /* Фильтры (Таблетки) */
+        .filters-scroll-area { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; /* Для Firefox */ }
+        .filters-scroll-area::-webkit-scrollbar { display: none; /* Скрываем скроллбар для красоты */ }
+        
+        .filter-chip { padding: 6px 16px; border-radius: 20px; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.05); color: var(--text-muted); font-size: 13px; cursor: pointer; white-space: nowrap; transition: all 0.2s; user-select: none; }
+        .filter-chip:hover { border-color: var(--accent); color: #fff; }
+        .filter-chip.active { background: var(--accent); color: #111; border-color: var(--accent); font-weight: 600; }
+
+        /* ======= СЕТКА КЛИПОВ ======= */
+        .section-title { font-size: 20px; margin-bottom: 15px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
         
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .clip-card { 
-            background-color: var(--card-bg); border-radius: 12px; overflow: hidden; 
-            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; 
-            border: 1px solid rgba(255, 255, 255, 0.05); 
-            animation: fadeInUp 0.6s ease backwards; 
-            display: flex;
-            flex-direction: column;
-        }
-        
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .clip-card { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; border: 1px solid rgba(255, 255, 255, 0.05); animation: fadeInUp 0.5s ease backwards; display: flex; flex-direction: column; }
         .clip-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.4); border-color: rgba(140, 198, 63, 0.3); }
-        
         .clip-preview { width: 100%; aspect-ratio: 16 / 9; background-color: #1a1a1f; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; position: relative; }
-        
-        .new-badge {
-            position: absolute; top: 10px; left: 10px; background-color: #ff4757; color: #fff;
-            padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; 
-            z-index: 2; box-shadow: 0 2px 5px rgba(0,0,0,0.5); letter-spacing: 0.5px;
-        }
-
+        .new-badge { position: absolute; top: 10px; left: 10px; background-color: #ff4757; color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; z-index: 2; box-shadow: 0 2px 5px rgba(0,0,0,0.5); letter-spacing: 0.5px; }
         .play-btn { width: 50px; height: 50px; background: rgba(0, 0, 0, 0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; backdrop-filter: blur(4px); transition: all 0.2s; border: 2px solid transparent; z-index: 2; }
         .clip-card:hover .play-btn { background: var(--accent); transform: scale(1.1); border-color: #fff; }
-        
-        .clip-info { 
-            padding: 12px 15px; display: flex; flex-direction: column; flex-grow: 1; 
-            justify-content: space-between; gap: 10px; 
-        }
+        .clip-info { padding: 12px 15px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; gap: 10px; }
         .clip-info h3 { margin: 0; font-size: 14px; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; color: #e1e1e3; }
-        
-        .clip-date {
-            font-size: 11px; color: #66666e; align-self: flex-end; display: flex; align-items: center; gap: 4px; 
-        }
-
+        .clip-date { font-size: 11px; color: #66666e; align-self: flex-end; display: flex; align-items: center; gap: 4px; }
         .no-results { text-align: center; padding: 50px; color: var(--text-muted); grid-column: 1 / -1; }
 
-        /* Спиннер загрузки */
         .loader-container { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px 0; gap: 15px; color: var(--text-muted); }
         .spinner { width: 40px; height: 40px; border: 4px solid rgba(140, 198, 63, 0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -133,15 +92,8 @@
         .btn-load-more { display: none; margin: 0 auto; background-color: var(--card-bg); color: var(--text-main); border: 1px solid var(--accent); padding: 12px 40px; border-radius: 25px; font-weight: 600; cursor: pointer; transition: all 0.3s; }
         .btn-load-more:hover { background-color: rgba(140, 198, 63, 0.1); color: var(--btn-green); }
 
-        /* Подвал сайта */
         .site-footer { text-align: center; padding: 30px 15px; margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.05); color: var(--text-muted); font-size: 13px; }
-
-        /* Кнопка "Наверх" */
-        #back-to-top {
-            position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; background-color: var(--card-bg); color: var(--btn-green); border: 2px solid var(--accent);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-            opacity: 0; pointer-events: none; transition: all 0.3s ease; transform: translateY(20px);
-        }
+        #back-to-top { position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; background-color: var(--card-bg); color: var(--btn-green); border: 2px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: all 0.3s ease; transform: translateY(20px); }
         #back-to-top.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
         #back-to-top:hover { background-color: var(--btn-green); color: #111; transform: scale(1.1); }
 
@@ -154,20 +106,15 @@
             .profile-details { grid-area: details; margin-top: 0; padding-bottom: 2px; } 
             .profile-details h1 { font-size: 21px; } 
             .profile-details p { font-size: 12px; margin-top: 2px; }
-            
-            /* Сдвинули кнопки на 10% влево от правого края */
-            .profile-actions { 
-                grid-area: actions; 
-                flex-direction: column; 
-                width: 145px; 
-                gap: 8px; 
-                margin-top: 0; 
-                justify-self: end;
-                margin-right: 10%; 
-            }
-            
+            .profile-actions { grid-area: actions; flex-direction: column; width: 145px; gap: 8px; margin-top: 0; justify-self: end; margin-right: 10%; }
             .btn { width: 100%; padding: 8px 10px; font-size: 11px; white-space: nowrap; gap: 6px; }
             .btn-icon { width: 18px; height: 18px; }
+            
+            /* Адаптация панели поиска */
+            .search-sort-row { flex-direction: column; gap: 10px; }
+            .sort-select { width: 100%; padding: 12px 15px; }
+            .sticky-control-panel { padding: 10px 0; }
+
             .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
             .clip-info { padding: 8px 10px; }
             .clip-info h3 { font-size: 12px; }
@@ -194,34 +141,43 @@
                 </div>
                 <div class="profile-actions">
                     <a href="https://t.me/fresh_clips" target="_blank" class="btn btn-primary">
-                        <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.94z"/>
-                        </svg>
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.94z"/></svg>
                         <span>Наш телеграм канал</span>
                     </a>
                     <a href="https://vk.com/fresh_clips" target="_blank" class="btn btn-secondary">
-                        <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.5 16.5h-1.4c-.5 0-.7-.4-1.7-1.4-1.1-1.1-1.5-1.2-1.7-1.2-.3 0-.4.1-.4.6v1.4c0 .4-.1.5-1.1.5-1.6 0-3.3-1-4.6-2.7-1.8-2.6-2.3-4.7-2.3-5.1 0-.2.1-.3.4-.3h1.4c.4 0 .5.2.6.5 1 2.5 2.4 4.2 2.8 4.2.2 0 .3-.1.3-.6v-2.8c-.05-.7-.3-1-1-1.1-.2-.03-.1-.3.1-.4.3-.2.8-.2 1.3-.2.7 0 .9.04 1.1.1.3.1.3.4.3 1.2v1.5c0 .3.1.4.2.4.2 0 .4-.1.9-.6 1-1 1.7-2.8 1.7-2.8.1-.2.2-.3.5-.3h1.4c.4 0 .5.2.4.4-.2.7-1.4 2.5-1.9 3-.3.4-.4.5 0 1 1 1.2 1.8 2.3 2.1 2.8.1.2 0 .5-.4.5z"/>
-                        </svg>
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.5 16.5h-1.4c-.5 0-.7-.4-1.7-1.4-1.1-1.1-1.5-1.2-1.7-1.2-.3 0-.4.1-.4.6v1.4c0 .4-.1.5-1.1.5-1.6 0-3.3-1-4.6-2.7-1.8-2.6-2.3-4.7-2.3-5.1 0-.2.1-.3.4-.3h1.4c.4 0 .5.2.6.5 1 2.5 2.4 4.2 2.8 4.2.2 0 .3-.1.3-.6v-2.8c-.05-.7-.3-1-1-1.1-.2-.03-.1-.3.1-.4.3-.2.8-.2 1.3-.2.7 0 .9.04 1.1.1.3.1.3.4.3 1.2v1.5c0 .3.1.4.2.4.2 0 .4-.1.9-.6 1-1 1.7-2.8 1.7-2.8.1-.2.2-.3.5-.3h1.4c.4 0 .5.2.4.4-.2.7-1.4 2.5-1.9 3-.3.4-.4.5 0 1 1 1.2 1.8 2.3 2.1 2.8.1.2 0 .5-.4.5z"/></svg>
                         <span>Мы в VK</span>
                     </a>
                 </div>
             </div>
         </div>
 
-        <div class="search-container">
-            <input type="text" id="search-input" placeholder="🔍 Поиск по названию клипа...">
+        <div class="sticky-control-panel">
+            <div class="search-sort-row">
+                <div class="search-wrapper">
+                    <input type="text" id="search-input" placeholder="🔍 Поиск по названию клипа...">
+                    <span id="clear-search" onclick="clearSearch()">✕</span>
+                </div>
+                <select id="sort-select" class="sort-select" onchange="applyFilters()">
+                    <option value="newest">⏱ Сначала новые</option>
+                    <option value="oldest">⏳ Сначала старые</option>
+                    <option value="az">🔤 По алфавиту (А-Я)</option>
+                </select>
+            </div>
+            
+            <div class="filters-scroll-area" id="month-filters"></div>
+            <div class="filters-scroll-area" id="tag-filters" style="margin-top: 8px;"></div>
         </div>
 
         <h2 class="section-title">
-            Новые клипы
+            <span id="section-header-text">Все клипы</span>
             <span id="results-count" style="font-size: 14px; font-weight: normal; color: var(--text-muted);"></span>
         </h2>
         
         <div class="grid" id="clips-grid">
             <div class="loader-container" id="loader">
                 <div class="spinner"></div>
-                <div>Загрузка свежих клипов...</div>
+                <div>Загрузка базы клипов...</div>
             </div>
         </div>
 
@@ -237,9 +193,7 @@
     </div>
 
     <div id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-            <path d="M13 19v-9.586l4.293 4.293 1.414-1.414L12 5.586l-6.707 6.707 1.414 1.414L11 9.586V19h2z"/>
-        </svg>
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M13 19v-9.586l4.293 4.293 1.414-1.414L12 5.586l-6.707 6.707 1.414 1.414L11 9.586V19h2z"/></svg>
     </div>
 
     <script>
@@ -247,15 +201,25 @@
         let filteredClipsData = [];  
         let currentDisplayed = 0;    
         const CLIPS_PER_PAGE = 12;   
+        
+        // Текущие активные фильтры
+        let activeMonth = null;
+        let activeTag = null;
+        
+        const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
 
         async function loadClips() {
             try {
                 const response = await fetch('clips.json?' + new Date().getTime());
                 allClipsData = await response.json();
-                filteredClipsData = allClipsData;
                 
                 document.getElementById('loader').style.display = 'none';
-                renderNextClips();
+                
+                // Строим кнопки фильтров на основе загруженных данных
+                buildFiltersUi();
+                
+                // Применяем фильтры (изначально покажет все)
+                applyFilters();
             } catch (error) {
                 console.error('Ошибка загрузки клипов:', error);
                 const loader = document.getElementById('loader');
@@ -264,6 +228,124 @@
             }
         }
 
+        // Автоматическое создание кнопок для месяцев и хэштегов
+        function buildFiltersUi() {
+            const monthSet = new Set();
+            const tagSet = new Set();
+
+            allClipsData.forEach(clip => {
+                // Собираем месяцы
+                if (clip.timestamp) {
+                    const d = new Date(clip.timestamp);
+                    const monthStr = `${d.getFullYear()}-${d.getMonth()}`;
+                    monthSet.add(monthStr);
+                }
+                // Собираем теги
+                if (clip.tags && clip.tags.length > 0) {
+                    clip.tags.forEach(tag => tagSet.add(tag));
+                }
+            });
+
+            // Отрисовка Месяцев
+            const monthContainer = document.getElementById('month-filters');
+            if(monthSet.size > 0) {
+                monthContainer.innerHTML = `<div class="filter-chip active" id="month-all" onclick="setMonthFilter(null)">📅 Все месяцы</div>`;
+                // Сортируем от новых к старым
+                Array.from(monthSet).sort().reverse().forEach(m => {
+                    const [year, monthIndex] = m.split('-');
+                    const label = `${monthNames[monthIndex]} ${year}`;
+                    monthContainer.innerHTML += `<div class="filter-chip" id="month-${m}" onclick="setMonthFilter('${m}')">${label}</div>`;
+                });
+            } else {
+                monthContainer.style.display = 'none';
+            }
+
+            // Отрисовка Тегов
+            const tagContainer = document.getElementById('tag-filters');
+            if(tagSet.size > 0) {
+                tagContainer.innerHTML = `<div class="filter-chip active" id="tag-all" onclick="setTagFilter(null)">🏷 Все жанры</div>`;
+                Array.from(tagSet).sort().forEach(tag => {
+                    // Убираем решетку чисто для красивого отображения на кнопке
+                    const displayTag = tag.replace('#', '');
+                    tagContainer.innerHTML += `<div class="filter-chip" id="tag-${tag}" onclick="setTagFilter('${tag}')">${displayTag}</div>`;
+                });
+            } else {
+                tagContainer.style.display = 'none';
+            }
+        }
+
+        // Установка фильтра по месяцу
+        function setMonthFilter(monthStr) {
+            activeMonth = monthStr;
+            // Обновляем визуальное выделение (кликнутая кнопка становится зеленой)
+            document.querySelectorAll('#month-filters .filter-chip').forEach(el => el.classList.remove('active'));
+            if(monthStr) {
+                document.getElementById(`month-${monthStr}`).classList.add('active');
+            } else {
+                document.getElementById('month-all').classList.add('active');
+            }
+            applyFilters();
+        }
+
+        // Установка фильтра по тегу
+        function setTagFilter(tag) {
+            activeTag = tag;
+            document.querySelectorAll('#tag-filters .filter-chip').forEach(el => el.classList.remove('active'));
+            if(tag) {
+                document.getElementById(`tag-${tag}`).classList.add('active');
+            } else {
+                document.getElementById('tag-all').classList.add('active');
+            }
+            applyFilters();
+        }
+
+        // Главная функция: применяет Поиск + Сортировку + Фильтры
+        function applyFilters() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            const sortMode = document.getElementById('sort-select').value;
+            
+            // 1. Поиск и Фильтрация
+            filteredClipsData = allClipsData.filter(clip => {
+                // Проверка поиска
+                const matchesSearch = clip.title.toLowerCase().includes(query);
+                
+                // Проверка месяца
+                let matchesMonth = true;
+                if (activeMonth && clip.timestamp) {
+                    const d = new Date(clip.timestamp);
+                    const clipMonthStr = `${d.getFullYear()}-${d.getMonth()}`;
+                    matchesMonth = (clipMonthStr === activeMonth);
+                }
+
+                // Проверка тега
+                let matchesTag = true;
+                if (activeTag) {
+                    matchesTag = clip.tags && clip.tags.includes(activeTag);
+                }
+
+                return matchesSearch && matchesMonth && matchesTag;
+            });
+
+            // 2. Сортировка
+            if (sortMode === 'oldest') {
+                filteredClipsData.reverse(); // В базе они и так хранятся от новых к старым
+            } else if (sortMode === 'az') {
+                filteredClipsData.sort((a, b) => a.title.localeCompare(b.title));
+            }
+
+            // 3. Динамический заголовок
+            const headerText = document.getElementById('section-header-text');
+            if (query) { headerText.innerText = 'Результаты поиска'; }
+            else if (activeTag) { headerText.innerText = 'Подборка: ' + activeTag; }
+            else { headerText.innerText = 'Все клипы'; }
+
+            // Сброс счетчика и перерисовка
+            document.getElementById('clips-grid').innerHTML = '';
+            currentDisplayed = 0;
+            renderNextClips();
+        }
+
+        // Вывод карточек на экран
         function renderNextClips() {
             const grid = document.getElementById('clips-grid');
             const loadMoreBtn = document.getElementById('load-more-btn');
@@ -285,8 +367,10 @@
                 card.className = 'clip-card';
                 card.style.animationDelay = `${index * 0.05}s`; 
 
+                // Бейдж "NEW" вешаем только если это сортировка "Сначала новые" и нет активных фильтров
+                const isDefaultView = !activeMonth && !activeTag && document.getElementById('search-input').value === '' && document.getElementById('sort-select').value === 'newest';
                 const originalIndex = allClipsData.indexOf(clip);
-                const badgeHtml = (originalIndex >= 0 && originalIndex < 3) 
+                const badgeHtml = (isDefaultView && originalIndex >= 0 && originalIndex < 3) 
                     ? '<div class="new-badge">NEW 🔥</div>' 
                     : '';
 
@@ -331,16 +415,23 @@
             }
         }
 
-        document.getElementById('search-input').addEventListener('input', function(e) {
-            const query = e.target.value.toLowerCase().trim();
-            filteredClipsData = allClipsData.filter(clip => 
-                clip.title.toLowerCase().includes(query)
-            );
-            document.getElementById('clips-grid').innerHTML = '';
-            currentDisplayed = 0;
-            renderNextClips();
+        // Поиск с появлением крестика
+        const searchInput = document.getElementById('search-input');
+        const clearBtn = document.getElementById('clear-search');
+
+        searchInput.addEventListener('input', function() {
+            clearBtn.style.display = this.value.trim() ? 'block' : 'none';
+            applyFilters();
         });
 
+        // Функция очистки поиска
+        function clearSearch() {
+            searchInput.value = '';
+            clearBtn.style.display = 'none';
+            applyFilters();
+        }
+
+        // Кнопка "Наверх"
         const backToTopBtn = document.getElementById('back-to-top');
         window.addEventListener('scroll', () => {
             if (window.scrollY > 400) {
