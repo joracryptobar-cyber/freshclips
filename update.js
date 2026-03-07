@@ -27,34 +27,32 @@ async function updateClips() {
                     const dateLinkEl = $(el).find('.tgme_widget_message_date');
                     const postUrl = dateLinkEl.attr('href') || 'https://t.me/fresh_clips';
                     
+                    // Время публикации
                     let timestamp = '';
                     const timeEl = $(el).find('.tgme_widget_message_date time');
                     if (timeEl.length > 0) {
                         timestamp = timeEl.attr('datetime') || ''; 
                     }
 
+                    // Количество просмотров
+                    let views = '';
+                    const viewsEl = $(el).find('.tgme_widget_message_views');
+                    if (viewsEl.length > 0) {
+                        views = viewsEl.text().trim(); // Например: "12.5K"
+                    }
+
                     let title = 'Свежий клип 🔥';
-                    let tags = []; // Массив для хранения хэштегов
-                    
                     const textEl = $(el).find('.tgme_widget_message_text');
                     if (textEl.length > 0) {
                         let rawText = textEl.text();
                         rawText = rawText.replace('Премьера клипа! ', '');
-                        
-                        // Извлекаем все хэштеги из текста
-                        const foundTags = rawText.match(/#[a-zA-Zа-яА-ЯёЁ0-9_]+/g);
-                        if (foundTags) {
-                            tags = foundTags;
-                        }
-
-                        // Очищаем название от хэштегов
                         rawText = rawText.split('#')[0].trim();
                         title = rawText.length > 70 ? rawText.substring(0, 67) + '...' : rawText;
                         if (!title) title = 'Свежий клип 🔥';
                     }
 
-                    // Сохраняем в базу вместе с тегами
-                    pageClips.push({ title, url: postUrl, image, timestamp, tags });
+                    // Теперь сохраняем и просмотры тоже!
+                    pageClips.push({ title, url: postUrl, image, timestamp, views });
                 }
             });
 
