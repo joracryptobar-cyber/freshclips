@@ -123,8 +123,8 @@
             .clip-info { padding: 8px 10px; gap: 8px; }
             .clip-info h3 { font-size: 12px; }
             .play-btn { width: 36px; height: 36px; font-size: 14px; }
-            .action-icon-btn { width: 32px; height: 32px; }
-            .action-icon-btn svg { width: 16px; height: 16px; }
+            .action-icon-btn { width: 28px; height: 28px; }
+            .action-icon-btn svg { width: 14px; height: 14px; }
             .new-badge { font-size: 9px; padding: 3px 6px; top: 6px; left: 6px; } 
             .meta-info { font-size: 10px; flex-direction: column; align-items: flex-start; gap: 3px; } 
             #back-to-top { bottom: 20px; right: 20px; width: 45px; height: 45px; }
@@ -271,9 +271,8 @@
             });
         }
 
-        // --- ЖЕЛЕЗОБЕТОННАЯ ЛОГИКА КНОПОК ---
+        // Логика Избранного
         function toggleFavorite(event, url) {
-            // Блокируем клик по самой ссылке на видео
             event.preventDefault();
             event.stopPropagation();
             
@@ -293,20 +292,26 @@
         function toggleFavoritesFilter() {
             showFavoritesOnly = !showFavoritesOnly;
             const favBtn = document.getElementById('fav-filter-btn');
+            
+            // Сбрасываем выделение со всех кнопок месяцев
+            document.querySelectorAll('#month-filters .filter-chip:not(#fav-filter-btn)').forEach(el => el.classList.remove('active'));
+
             if(showFavoritesOnly) {
                 favBtn.classList.add('active');
-                setMonthFilter(null); 
-            } else { favBtn.classList.remove('active'); }
+                activeMonth = null; // При входе в Избранное сбрасываем месяц
+            } else { 
+                favBtn.classList.remove('active'); 
+                activeMonth = null;
+                document.getElementById('month-all').classList.add('active'); // Возвращаемся на "Все месяцы"
+            }
             applyFilters();
         }
 
-        // --- ЖЕЛЕЗОБЕТОННАЯ ЛОГИКА SHARE ---
+        // Логика Share
         function shareClip(event, url, title) {
-            // Блокируем проваливание клика
             event.preventDefault();
             event.stopPropagation();
             
-            // Если браузер поддерживает нативный Share (и сайт на https)
             if (navigator.share && window.isSecureContext) {
                 navigator.share({ 
                     title: title, 
@@ -314,12 +319,10 @@
                     url: url 
                 }).catch((error) => console.log('Шаринг отменен', error));
             } else {
-                // Железобетонный запасной вариант с копированием ссылки
                 fallbackCopyTextToClipboard(url);
             }
         }
 
-        // Запасная функция копирования текста в буфер обмена
         function fallbackCopyTextToClipboard(text) {
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(text).then(() => {
@@ -328,7 +331,6 @@
                     prompt('Скопируйте ссылку вручную:', text);
                 });
             } else {
-                // Старый дедовский метод (работает даже без https)
                 let textArea = document.createElement("textarea");
                 textArea.value = text;
                 textArea.style.position = "fixed";
@@ -348,13 +350,19 @@
 
         function setMonthFilter(monthStr) {
             activeMonth = monthStr;
-            if(showFavoritesOnly && monthStr !== null) {
+            
+            // ЖЕЛЕЗОБЕТОННО: Если кликаем по месяцу (или по "Все месяцы"), обязательно выключаем Избранное
+            if(showFavoritesOnly) {
                 showFavoritesOnly = false;
                 document.getElementById('fav-filter-btn').classList.remove('active');
             }
+            
             document.querySelectorAll('#month-filters .filter-chip:not(#fav-filter-btn)').forEach(el => el.classList.remove('active'));
-            if(monthStr) { document.getElementById(`month-${monthStr}`).classList.add('active'); } 
-            else { document.getElementById('month-all').classList.add('active'); }
+            if(monthStr) { 
+                document.getElementById(`month-${monthStr}`).classList.add('active'); 
+            } else { 
+                document.getElementById('month-all').classList.add('active'); 
+            }
             applyFilters();
         }
 
