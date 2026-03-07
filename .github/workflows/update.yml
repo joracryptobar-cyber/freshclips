@@ -1,16 +1,13 @@
-name: Обновление Клипов
+name: Обновление Клипов (Без ключей API)
 
 on:
   schedule:
-    # Запускать каждый час (0-я минута каждого часа)
-    - cron: '0 * * * *'
-  workflow_dispatch:
-    # Кнопка для ручного запуска в интерфейсе GitHub
+    - cron: '0 * * * *' # Запуск каждый час
+  workflow_dispatch:    # Кнопка для ручного запуска
 
 jobs:
   update-clips:
     runs-on: ubuntu-latest
-
     permissions:
       contents: write
 
@@ -18,27 +15,21 @@ jobs:
     - name: Клонирование репозитория
       uses: actions/checkout@v4
 
-    - name: Установка Python
-      uses: actions/setup-python@v5
+    - name: Настройка Node.js
+      uses: actions/setup-node@v4
       with:
-        python-version: '3.10'
+        node-version: '20'
 
-    - name: Установка библиотеки Telethon
-      run: pip install telethon
+    - name: Установка библиотеки для парсинга HTML
+      run: npm install cheerio
 
-    - name: Запуск скрипта обновления
-      env:
-        # Берем секреты из настроек репозитория
-        API_ID: ${{ secrets.API_ID }}
-        API_HASH: ${{ secrets.API_HASH }}
-        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-      run: python update_site.py
+    - name: Запуск парсера
+      run: node update.js
 
-    - name: Сохранение и отправка изменений на сайт
+    - name: Сохранение и отправка clips.json на сайт
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action Bot"
-        git add images/ clips.json
-        # Сохраняем изменения (если новых видео нет, пропустит ошибку)
-        git commit -m "🤖 Автоматическое обновление: новые клипы" || exit 0
+        git add clips.json
+        git commit -m "🤖 Авто-обновление: clips.json" || exit 0
         git push
