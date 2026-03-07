@@ -93,20 +93,14 @@
             align-items: center;
             justify-content: center;
             gap: 8px; 
-            line-height: 1; /* Убирает лишние отступы у шрифта */
+            line-height: 1; 
         }
 
         .btn-icon {
             width: 21px; 
             height: 21px;
-            flex-shrink: 0; /* Запрещаем сжиматься */
+            flex-shrink: 0; 
             display: block;
-        }
-
-        /* Стиль специально для VK-иконки, чтобы закруглить углы */
-        .vk-icon {
-            border-radius: 6px; 
-            object-fit: cover;
         }
 
         .btn-primary, .btn-secondary { background-color: var(--btn-green); }
@@ -247,7 +241,9 @@
                         <span>Наш телеграм канал</span>
                     </a>
                     <a href="https://vk.com/fresh_clips" target="_blank" class="btn btn-secondary">
-                        <img class="btn-icon vk-icon" src="image_10.png" alt="VK">
+                        <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.5 16.5h-1.4c-.5 0-.7-.4-1.7-1.4-1.1-1.1-1.5-1.2-1.7-1.2-.3 0-.4.1-.4.6v1.4c0 .4-.1.5-1.1.5-1.6 0-3.3-1-4.6-2.7-1.8-2.6-2.3-4.7-2.3-5.1 0-.2.1-.3.4-.3h1.4c.4 0 .5.2.6.5 1 2.5 2.4 4.2 2.8 4.2.2 0 .3-.1.3-.6v-2.8c-.05-.7-.3-1-1-1.1-.2-.03-.1-.3.1-.4.3-.2.8-.2 1.3-.2.7 0 .9.04 1.1.1.3.1.3.4.3 1.2v1.5c0 .3.1.4.2.4.2 0 .4-.1.9-.6 1-1 1.7-2.8 1.7-2.8.1-.2.2-.3.5-.3h1.4c.4 0 .5.2.4.4-.2.7-1.4 2.5-1.9 3-.3.4-.4.5 0 1 1 1.2 1.8 2.3 2.1 2.8.1.2 0 .5-.4.5z"/>
+                        </svg>
                         <span>Мы в VK</span>
                     </a>
                 </div>
