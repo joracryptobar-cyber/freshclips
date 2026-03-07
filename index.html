@@ -14,7 +14,6 @@
     <link rel="preconnect" href="https://t.me">
 
     <style>
-        /* Темная тема с зелеными акцентами */
         :root { 
             --bg-color: #0a0a0c;       
             --card-bg: #222226;        
@@ -33,7 +32,6 @@
 
         .main-wrapper { max-width: 1200px; margin: 20px auto; padding: 0 15px; min-height: 100vh; display: flex; flex-direction: column; }
 
-        /* ======= БЛОК ПРОФИЛЯ ======= */
         .profile-header { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.5); margin-bottom: 25px; border: 2px solid var(--accent); }
         .cover-image { width: 100%; height: 320px; background-color: #000000; background-image: url('https://sun9-3.userapi.com/impf/DiuXQCGE1N_Wty_HCbV8CoCBdQ3L07UdtuVRwA/thJWeQCYs8I.jpg?size=1920x768&quality=95&crop=26,0,1697,678&sign=d9c1b7989607c18bc3cb14a7521395d3&c_uniq_tag=NWFmbEvYJ29Sw7iJDXKRKD8AWpt3hJgpwRq95Whq6Go&type=cover_group'); background-size: cover; background-position: center 100%; background-repeat: no-repeat; }
         .profile-info { padding: 15px 30px 25px; display: flex; align-items: center; flex-wrap: wrap; gap: 20px; position: relative; }
@@ -48,7 +46,6 @@
         .btn-primary, .btn-secondary { background-color: var(--btn-green); }
         .btn-primary:hover, .btn-secondary:hover { background-color: var(--btn-green-hover); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(140, 198, 63, 0.3); }
 
-        /* ======= ЛИПКАЯ ПАНЕЛЬ ======= */
         .sticky-control-panel {
             position: sticky; top: 0; z-index: 100; 
             background: rgba(10, 10, 12, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
@@ -62,7 +59,7 @@
         #clear-search { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); display: none; font-size: 18px; width: 24px; height: 24px; text-align: center; line-height: 24px; border-radius: 50%; }
         #clear-search:hover { color: #fff; background: rgba(255,255,255,0.1); }
 
-        .sort-select { padding: 14px 40px 14px 20px; border-radius: 25px; background-color: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-main); outline: none; cursor: pointer; font-family: inherit; font-size: 15px; min-width: 200px; box-sizing: border-box; transition: all 0.3s ease; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2393939a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 18px center; }
+        .sort-select { padding: 14px 40px 14px 20px; border-radius: 25px; background-color: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-main); outline: none; cursor: pointer; font-family: inherit; font-size: 15px; min-width: 240px; box-sizing: border-box; transition: all 0.3s ease; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2393939a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 18px center; }
         .sort-select:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(140, 198, 63, 0.2); }
 
         .filters-scroll-area { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
@@ -72,7 +69,6 @@
         .filter-chip.active { background: var(--accent); color: #111; border-color: var(--accent); font-weight: 600; }
         #fav-filter-btn.active { background-color: #ff4757; color: #fff; border-color: #ff4757; }
 
-        /* ======= СЕТКА КЛИПОВ И ОПТИМИЗАЦИЯ КАРТИНОК ======= */
         .section-title { font-size: 20px; margin-bottom: 15px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
         
@@ -81,10 +77,7 @@
         .clip-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.4); border-color: rgba(140, 198, 63, 0.3); }
         
         .clip-preview { width: 100%; aspect-ratio: 16 / 9; background-color: #1a1a1f; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        
-        /* НОВЫЙ СТИЛЬ: Ленивые картинки вместо фона */
         .lazy-image { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 0; transition: opacity 0.3s ease; }
-        
         .preview-link { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: flex; align-items: center; justify-content: center; z-index: 4; text-decoration: none; }
         .new-badge { position: absolute; top: 10px; left: 10px; background-color: #ff4757; color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.5); letter-spacing: 0.5px; pointer-events: none; }
         
@@ -112,7 +105,6 @@
         #back-to-top.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
         #back-to-top:hover { background-color: var(--btn-green); color: #111; transform: scale(1.1); }
 
-        /* ======= АДАПТАЦИЯ ДЛЯ ТЕЛЕФОНОВ ======= */
         @media (max-width: 768px) {
             .cover-image { height: 120px; background-image: url('mobile_cover.png'); background-size: cover; background-position: center; }
             .profile-info { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "avatar ." "details actions"; align-items: end; padding: 10px 15px 15px; gap: 5px 15px; }
@@ -174,6 +166,7 @@
                 </div>
                 <select id="sort-select" class="sort-select" onchange="applyFilters()">
                     <option value="newest">⏱ Сначала новые</option>
+                    <option value="popular">🔥 Самые просматриваемые</option>
                     <option value="oldest">⏳ Сначала старые</option>
                     <option value="az">🔤 По алфавиту (А-Я)</option>
                 </select>
@@ -227,7 +220,6 @@
 
         async function loadClips() {
             try {
-                // ОПТИМИЗАЦИЯ КЭША: Обновляем кэш раз в 5 минут, а не каждую миллисекунду
                 const cacheBuster = Math.floor(Date.now() / 300000); 
                 const response = await fetch('clips.json?v=' + cacheBuster);
                 allClipsData = await response.json();
@@ -241,6 +233,17 @@
                 document.getElementById('scroll-text').innerText = 'Зайдите в Telegram, чтобы посмотреть новые клипы!';
                 document.getElementById('main-spinner').style.display = 'none';
             }
+        }
+
+        // Вспомогательная функция для перевода текста "12.5K" в число 12500 для сортировки
+        function parseViews(viewStr) {
+            if (!viewStr) return 0;
+            let str = viewStr.toString().toUpperCase().replace(',', '.');
+            let num = parseFloat(str);
+            if (isNaN(num)) return 0;
+            if (str.includes('K')) return num * 1000;
+            if (str.includes('M')) return num * 1000000;
+            return num;
         }
 
         function buildFiltersUi() {
@@ -331,8 +334,15 @@
                 return matchesSearch && matchesMonth && matchesFav;
             });
 
-            if (sortMode === 'oldest') { filteredClipsData.reverse(); } 
-            else if (sortMode === 'az') { filteredClipsData.sort((a, b) => a.title.localeCompare(b.title)); }
+            // ПРИМЕНЯЕМ СОРТИРОВКУ
+            if (sortMode === 'oldest') { 
+                filteredClipsData.reverse(); 
+            } else if (sortMode === 'az') { 
+                filteredClipsData.sort((a, b) => a.title.localeCompare(b.title)); 
+            } else if (sortMode === 'popular') {
+                // Сортируем по просмотрам: от бОльшего к меньшему
+                filteredClipsData.sort((a, b) => parseViews(b.views) - parseViews(a.views));
+            }
 
             const headerText = document.getElementById('section-header-text');
             if (showFavoritesOnly) { headerText.innerText = 'Мои сохраненные'; }
@@ -381,7 +391,6 @@
 
                 const safeTitle = clip.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
-                // ЛЕНИВАЯ ЗАГРУЗКА: Используем <img loading="lazy"> вместо background-image
                 card.innerHTML = `
                     <div class="clip-preview">
                         <img src="${clip.image}" alt="${safeTitle}" class="lazy-image" loading="lazy">
