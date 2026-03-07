@@ -3,7 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <title>Свежие Клипы | Telegram Канал</title>
+    <meta name="description" content="Смотрите самые свежие и популярные музыкальные клипы. Обновляется автоматически!">
+    <meta property="og:title" content="Свежие Клипы 🔥 | Наш Каталог">
+    <meta property="og:description" content="Смотрите самые свежие и популярные музыкальные клипы. Обновляется автоматически!">
+    <meta property="og:image" content="https://sun9-3.userapi.com/impf/DiuXQCGE1N_Wty_HCbV8CoCBdQ3L07UdtuVRwA/thJWeQCYs8I.jpg?size=1920x768&quality=95&crop=26,0,1697,678&sign=d9c1b7989607c18bc3cb14a7521395d3&c_uniq_tag=NWFmbEvYJ29Sw7iJDXKRKD8AWpt3hJgpwRq95Whq6Go&type=cover_group">
+    <meta property="og:type" content="website">
+    <meta name="theme-color" content="#8cc63f">
+    <link rel="preconnect" href="https://t.me">
+
     <style>
         /* Темная тема с зелеными акцентами */
         :root { 
@@ -47,7 +56,6 @@
         }
         
         .search-sort-row { display: flex; gap: 12px; margin-bottom: 15px; align-items: stretch; }
-        
         .search-wrapper { position: relative; flex-grow: 1; }
         #search-input { width: 100%; height: 100%; padding: 14px 45px 14px 20px; border-radius: 25px; background-color: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-main); font-size: 15px; box-sizing: border-box; outline: none; transition: all 0.3s ease; font-family: inherit; }
         #search-input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(140, 198, 63, 0.2); }
@@ -59,15 +67,12 @@
 
         .filters-scroll-area { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
         .filters-scroll-area::-webkit-scrollbar { display: none; }
-        
         .filter-chip { padding: 8px 18px; border-radius: 20px; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.05); color: var(--text-muted); font-size: 13px; cursor: pointer; white-space: nowrap; transition: all 0.2s; user-select: none; display: flex; align-items: center; gap: 6px; }
         .filter-chip:hover { border-color: var(--accent); color: #fff; }
         .filter-chip.active { background: var(--accent); color: #111; border-color: var(--accent); font-weight: 600; }
-        
-        /* Кнопка ИЗБРАННОГО в меню */
         #fav-filter-btn.active { background-color: #ff4757; color: #fff; border-color: #ff4757; }
 
-        /* ======= СЕТКА КЛИПОВ ======= */
+        /* ======= СЕТКА КЛИПОВ И ОПТИМИЗАЦИЯ КАРТИНОК ======= */
         .section-title { font-size: 20px; margin-bottom: 15px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
         
@@ -75,13 +80,15 @@
         .clip-card { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; border: 1px solid rgba(255, 255, 255, 0.05); animation: fadeInUp 0.5s ease backwards; display: flex; flex-direction: column; position: relative; }
         .clip-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.4); border-color: rgba(140, 198, 63, 0.3); }
         
-        .clip-preview { width: 100%; aspect-ratio: 16 / 9; background-color: #1a1a1f; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; position: relative; }
-        .preview-link { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: flex; align-items: center; justify-content: center; z-index: 1; text-decoration: none; }
+        .clip-preview { width: 100%; aspect-ratio: 16 / 9; background-color: #1a1a1f; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
         
-        .new-badge { position: absolute; top: 10px; left: 10px; background-color: #ff4757; color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; z-index: 2; box-shadow: 0 2px 5px rgba(0,0,0,0.5); letter-spacing: 0.5px; pointer-events: none; }
+        /* НОВЫЙ СТИЛЬ: Ленивые картинки вместо фона */
+        .lazy-image { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 0; transition: opacity 0.3s ease; }
         
-        /* Кнопки лайка и шара на карточке */
-        .card-actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; z-index: 5; }
+        .preview-link { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: flex; align-items: center; justify-content: center; z-index: 4; text-decoration: none; }
+        .new-badge { position: absolute; top: 10px; left: 10px; background-color: #ff4757; color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.5); letter-spacing: 0.5px; pointer-events: none; }
+        
+        .card-actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; z-index: 6; }
         .action-icon-btn { width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.1); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; padding: 0; }
         .action-icon-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
         .action-icon-btn.liked { color: #ff4757; background: rgba(0,0,0,0.8); border-color: #ff4757; }
@@ -90,16 +97,12 @@
         .play-btn { width: 50px; height: 50px; background: rgba(0, 0, 0, 0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; backdrop-filter: blur(4px); transition: all 0.2s; border: 2px solid transparent; }
         .clip-card:hover .play-btn { background: var(--accent); transform: scale(1.1); border-color: #fff; }
         
-        .clip-info { padding: 12px 15px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; gap: 10px; }
+        .clip-info { padding: 12px 15px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; gap: 10px; z-index: 1; }
         .clip-info h3 { margin: 0; font-size: 14px; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; color: #e1e1e3; }
-        
-        /* Блок с датой и просмотрами */
         .meta-info { display: flex; justify-content: space-between; align-items: center; width: 100%; font-size: 11px; color: #66666e; }
         .meta-item { display: flex; align-items: center; gap: 4px; }
-        
         .no-results { text-align: center; padding: 50px; color: var(--text-muted); grid-column: 1 / -1; }
 
-        /* Бесконечный скролл: индикатор */
         .infinite-scroll-sentinel { width: 100%; height: 50px; display: flex; align-items: center; justify-content: center; padding: 20px 0; color: var(--text-muted); }
         .spinner { width: 30px; height: 30px; border: 3px solid rgba(140, 198, 63, 0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -121,11 +124,9 @@
             .profile-actions { grid-area: actions; flex-direction: column; width: 145px; gap: 8px; margin-top: 0; justify-self: end; margin-right: 10%; }
             .btn { width: 100%; padding: 8px 10px; font-size: 11px; gap: 6px; }
             .btn-icon { width: 18px; height: 18px; }
-            
             .search-sort-row { flex-direction: column; gap: 10px; }
             .sort-select { width: 100%; padding: 14px 20px; } 
             .sticky-control-panel { padding: 10px 0; }
-
             .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
             .clip-info { padding: 8px 10px; gap: 8px; }
             .clip-info h3 { font-size: 12px; }
@@ -133,8 +134,7 @@
             .action-icon-btn { width: 28px; height: 28px; }
             .action-icon-btn svg { width: 14px; height: 14px; }
             .new-badge { font-size: 9px; padding: 3px 6px; top: 6px; left: 6px; } 
-            .meta-info { font-size: 10px; flex-direction: column; align-items: flex-start; gap: 3px; } /* На мобилках просмотры и дата друг под другом */
-            
+            .meta-info { font-size: 10px; flex-direction: column; align-items: flex-start; gap: 3px; } 
             #back-to-top { bottom: 20px; right: 20px; width: 45px; height: 45px; }
         }
     </style>
@@ -178,9 +178,7 @@
                     <option value="az">🔤 По алфавиту (А-Я)</option>
                 </select>
             </div>
-            
-            <div class="filters-scroll-area" id="month-filters">
-                </div>
+            <div class="filters-scroll-area" id="month-filters"></div>
         </div>
 
         <h2 class="section-title">
@@ -189,7 +187,11 @@
         </h2>
         
         <div class="grid" id="clips-grid">
+            <div class="loader-container" id="loader" style="display: none;">
+                <div class="spinner"></div>
+                <div>Загрузка базы клипов...</div>
             </div>
+        </div>
 
         <div id="scroll-sentinel" class="infinite-scroll-sentinel">
             <div class="spinner" id="main-spinner"></div>
@@ -215,28 +217,23 @@
         
         let activeMonth = null;
         let showFavoritesOnly = false;
-        
-        // Достаем избранное из памяти устройства (localStorage)
         let savedFavorites = JSON.parse(localStorage.getItem('freshClipsFavorites')) || [];
         
         const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
 
-        // Настройка бесконечного скролла
         const observer = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting) {
-                renderNextClips();
-            }
+            if (entries[0].isIntersecting) { renderNextClips(); }
         }, { rootMargin: "200px" });
 
         async function loadClips() {
             try {
-                const response = await fetch('clips.json?' + new Date().getTime());
+                // ОПТИМИЗАЦИЯ КЭША: Обновляем кэш раз в 5 минут, а не каждую миллисекунду
+                const cacheBuster = Math.floor(Date.now() / 300000); 
+                const response = await fetch('clips.json?v=' + cacheBuster);
                 allClipsData = await response.json();
                 
                 buildFiltersUi();
                 applyFilters();
-                
-                // Включаем слежку за концом страницы для бесконечного скролла
                 observer.observe(document.getElementById('scroll-sentinel'));
                 
             } catch (error) {
@@ -257,8 +254,6 @@
             });
 
             const monthContainer = document.getElementById('month-filters');
-            
-            // Кнопка ИЗБРАННОГО
             monthContainer.innerHTML = `
                 <div class="filter-chip" id="fav-filter-btn" onclick="toggleFavoritesFilter()">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
@@ -274,22 +269,17 @@
             });
         }
 
-        // Логика Избранного
         function toggleFavorite(event, url) {
             const btn = event.currentTarget;
             const index = savedFavorites.indexOf(url);
-            
             if (index > -1) {
-                savedFavorites.splice(index, 1); // Удаляем
+                savedFavorites.splice(index, 1);
                 btn.classList.remove('liked');
             } else {
-                savedFavorites.push(url); // Добавляем
+                savedFavorites.push(url);
                 btn.classList.add('liked');
             }
-            
             localStorage.setItem('freshClipsFavorites', JSON.stringify(savedFavorites));
-            
-            // Если мы находимся в фильтре Избранного, сразу убираем карточку
             if (showFavoritesOnly) { applyFilters(); }
         }
 
@@ -298,14 +288,11 @@
             const favBtn = document.getElementById('fav-filter-btn');
             if(showFavoritesOnly) {
                 favBtn.classList.add('active');
-                setMonthFilter(null); // Сбрасываем фильтр месяцев, если включили избранное
-            } else {
-                favBtn.classList.remove('active');
-            }
+                setMonthFilter(null); 
+            } else { favBtn.classList.remove('active'); }
             applyFilters();
         }
 
-        // Логика кнопки "Поделиться"
         function shareClip(event, url, title) {
             if (navigator.share) {
                 navigator.share({ title: title, text: '🔥 Зацени свежий клип!', url: url }).catch(console.error);
@@ -321,13 +308,9 @@
                 showFavoritesOnly = false;
                 document.getElementById('fav-filter-btn').classList.remove('active');
             }
-            
             document.querySelectorAll('#month-filters .filter-chip:not(#fav-filter-btn)').forEach(el => el.classList.remove('active'));
-            if(monthStr) {
-                document.getElementById(`month-${monthStr}`).classList.add('active');
-            } else {
-                document.getElementById('month-all').classList.add('active');
-            }
+            if(monthStr) { document.getElementById(`month-${monthStr}`).classList.add('active'); } 
+            else { document.getElementById('month-all').classList.add('active'); }
             applyFilters();
         }
 
@@ -337,27 +320,19 @@
             
             filteredClipsData = allClipsData.filter(clip => {
                 const matchesSearch = clip.title.toLowerCase().includes(query);
-                
                 let matchesMonth = true;
                 if (activeMonth && clip.timestamp) {
                     const d = new Date(clip.timestamp);
                     const clipMonthStr = `${d.getFullYear()}-${d.getMonth()}`;
                     matchesMonth = (clipMonthStr === activeMonth);
                 }
-                
                 let matchesFav = true;
-                if (showFavoritesOnly) {
-                    matchesFav = savedFavorites.includes(clip.url);
-                }
-                
+                if (showFavoritesOnly) { matchesFav = savedFavorites.includes(clip.url); }
                 return matchesSearch && matchesMonth && matchesFav;
             });
 
-            if (sortMode === 'oldest') {
-                filteredClipsData.reverse(); 
-            } else if (sortMode === 'az') {
-                filteredClipsData.sort((a, b) => a.title.localeCompare(b.title));
-            }
+            if (sortMode === 'oldest') { filteredClipsData.reverse(); } 
+            else if (sortMode === 'az') { filteredClipsData.sort((a, b) => a.title.localeCompare(b.title)); }
 
             const headerText = document.getElementById('section-header-text');
             if (showFavoritesOnly) { headerText.innerText = 'Мои сохраненные'; }
@@ -367,7 +342,6 @@
             document.getElementById('clips-grid').innerHTML = '';
             currentDisplayed = 0;
             
-            // Если ничего не найдено, прячем сентинел
             if (filteredClipsData.length === 0) {
                 document.getElementById('scroll-sentinel').style.display = 'none';
                 document.getElementById('clips-grid').innerHTML = '<div class="no-results">В этом разделе пока ничего нет 😔</div>';
@@ -378,11 +352,10 @@
         }
 
         function renderNextClips() {
-            if (currentDisplayed >= filteredClipsData.length) return; // Всё выведено
+            if (currentDisplayed >= filteredClipsData.length) return; 
             
             const grid = document.getElementById('clips-grid');
             const nextBatch = filteredClipsData.slice(currentDisplayed, currentDisplayed + CLIPS_PER_PAGE);
-            
             document.getElementById('results-count').innerText = `${filteredClipsData.length} видео`;
             
             nextBatch.forEach((clip, index) => {
@@ -395,7 +368,6 @@
                 const isDefaultView = !activeMonth && !showFavoritesOnly && document.getElementById('search-input').value === '' && document.getElementById('sort-select').value === 'newest';
                 const badgeHtml = (isDefaultView && originalIndex >= 0 && originalIndex < 3) ? '<div class="new-badge">NEW 🔥</div>' : '';
 
-                // Отрисовка Даты и Просмотров
                 let viewsHtml = clip.views ? `<div class="meta-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${clip.views}</div>` : '';
                 
                 let dateHtml = '';
@@ -407,11 +379,12 @@
                     dateHtml = `<div class="meta-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> ${day}.${month}.${year}</div>`;
                 }
 
-                // Кнопка Лайка и Шара (для передачи в функцию заменяем кавычки в title)
                 const safeTitle = clip.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
 
+                // ЛЕНИВАЯ ЗАГРУЗКА: Используем <img loading="lazy"> вместо background-image
                 card.innerHTML = `
-                    <div class="clip-preview" style="background-image: url('${clip.image}');">
+                    <div class="clip-preview">
+                        <img src="${clip.image}" alt="${safeTitle}" class="lazy-image" loading="lazy">
                         ${badgeHtml}
                         <div class="card-actions">
                             <button class="action-icon-btn ${isFav ? 'liked' : ''}" onclick="toggleFavorite(event, '${clip.url}')" title="В избранное">
@@ -438,7 +411,6 @@
 
             currentDisplayed += nextBatch.length;
 
-            // Если вывели всё, прячем сентинел (чтобы больше не крутился лоадер)
             if (currentDisplayed >= filteredClipsData.length) {
                 document.getElementById('scroll-sentinel').style.display = 'none';
             } else {
