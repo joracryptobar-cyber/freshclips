@@ -1,0 +1,44 @@
+name: Обновление Клипов
+
+on:
+  schedule:
+    # Запускать каждый час (0-я минута каждого часа)
+    - cron: '0 * * * *'
+  workflow_dispatch:
+    # Кнопка для ручного запуска в интерфейсе GitHub
+
+jobs:
+  update-clips:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+    - name: Клонирование репозитория
+      uses: actions/checkout@v4
+
+    - name: Установка Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Установка библиотеки Telethon
+      run: pip install telethon
+
+    - name: Запуск скрипта обновления
+      env:
+        # Берем секреты из настроек репозитория
+        API_ID: ${{ secrets.API_ID }}
+        API_HASH: ${{ secrets.API_HASH }}
+        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+      run: python update_site.py
+
+    - name: Сохранение и отправка изменений на сайт
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action Bot"
+        git add images/ clips.json
+        # Сохраняем изменения (если новых видео нет, пропустит ошибку)
+        git commit -m "🤖 Автоматическое обновление: новые клипы" || exit 0
+        git push
