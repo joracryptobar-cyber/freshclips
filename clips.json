@@ -1,63 +1,62 @@
-import os
-import json
-import asyncio
-from telethon import TelegramClient
-
-# Получаем секретные ключи из GitHub Actions
-API_ID = os.environ.get('API_ID')
-API_HASH = os.environ.get('API_HASH')
-BOT_TOKEN = os.environ.get('BOT_TOKEN')
-
-CHANNEL_USERNAME = 'fresh_clips'
-VIDEOS_TO_FETCH = 12 # Сколько клипов показывать на сайте
-
-async def main():
-    if not all([API_ID, API_HASH, BOT_TOKEN]):
-        print("Ошибка: Не найдены ключи API_ID, API_HASH или BOT_TOKEN!")
-        return
-
-    # Создаем папку для картинок, если её нет
-    os.makedirs('images', exist_ok=True)
-    
-    # Подключаемся к Telegram как бот (не требует ввода СМС-кодов)
-    client = TelegramClient('bot_session', int(API_ID), API_HASH)
-    await client.start(bot_token=BOT_TOKEN)
-    
-    print(f"Бот успешно подключен! Собираем видео из @{CHANNEL_USERNAME}...")
-    
-    clips_data = []
-    
-    # Ищем последние посты
-    async for message in client.iter_messages(CHANNEL_USERNAME, limit=50):
-        # Если в сообщении есть видео и мы еще не набрали нужное количество
-        if message.video and len(clips_data) < VIDEOS_TO_FETCH:
-            post_url = f"https://t.me/{CHANNEL_USERNAME}/{message.id}"
-            
-            # Обрабатываем текст
-            title = message.text if message.text else "Свежий клип 🔥"
-            title = title.replace('\n', ' ')
-            if len(title) > 60: 
-                title = title[:57] + "..."
-            
-            # Скачиваем превью
-            thumb_path = f"images/thumb_{message.id}.jpg"
-            if not os.path.exists(thumb_path):
-                print(f"Скачиваю превью для поста {message.id}...")
-                await client.download_media(message, file=thumb_path, thumb=-1)
-            
-            # Добавляем в список
-            clips_data.append({
-                "id": message.id,
-                "title": title,
-                "url": post_url,
-                "image": thumb_path
-            })
-            
-    # Сохраняем базу данных в файл
-    with open("clips.json", "w", encoding="utf-8") as file:
-        json.dump(clips_data, file, ensure_ascii=False, indent=4)
-        
-    print(f"Готово! Собрано {len(clips_data)} клипов. Файл clips.json обновлен.")
-
-if __name__ == '__main__':
-    asyncio.run(main())
+[
+    {
+        "title": "Алсу, Ева Власова - Белая фата#ПремьераКлипа #Премьера #Клип #ЕваВл...",
+        "url": "https://t.me/fresh_clips/507",
+        "image": "https://cdn4.telesco.pe/file/SH3LHpR3H-4kbU-42u6jumYT_xNbkTBwu_uRlbd_nmAw8Gu0w8Dpj6CNUOwcgLJEausnRLI4SpynLMjei0pFlEgRjBl3eScuLVYzYu0gvjWmGiHG6hKDpM2u3sWG3jiXs0OtbuyIphu6azQdwyg6TGwwShmUdmvOWrmo6yVapyaCf6QCcV5DlraZquo6rFmdNDXTERYqx_CNpX0W0ePTkWqgUxkhjhlMJdUYtKQQwhw9ew4604PVgMiTnuFg0HpdN3snhum-9hSj3fSEUVjkVG02zGvZjX6S4b4x3PKCD_nT4bKsRb3oONy5VR0ZJ_Fn7O6Efx6YS4avwYojslbPvQ"
+    },
+    {
+        "title": "Кристина Орбакайте — КРУТАЯ#ПремьераКлипа #Премьера #Клип #Кристина...",
+        "url": "https://t.me/fresh_clips/506",
+        "image": "https://cdn4.telesco.pe/file/TUhP9PI3briTU8QgnUFTwascNfDaxL1RiprhObVkNoBwsj8U9gSQpOQGtxNw1sMrXcp4Bx6cZ0s8YIFT3SanJ0ydV_Ctene14cqBTbsiwx0EXtBG8xn-YXNKTch_eIRvBTVLlYctDX84y7XmucIeS9e0Rrjqx3YcRwlvv-OtDTTmG3LsB1vUuWcT8EPevJaZqXu6jfavuzh0QGbe6NmAQfy_t54FLft_3sBUZA77qouL_V7gi-I5BnxEFl-wVwYl85llLuSeTSIcayuOXyYCExvK6z_7YJCcpXI70EP4dLNj4BfUqm-H4JK6Fp-8f8GSJT21I3OYiyB9TrpW3cMGZQ"
+    },
+    {
+        "title": "ЕСЕНИН — «Шаганэ ты моя, Шаганэ» | DJ БлокNote#ПремьераКлипа #Премь...",
+        "url": "https://t.me/fresh_clips/505",
+        "image": "https://cdn4.telesco.pe/file/AI7Pz1BcUMMbM47DFNk3DtYAQtiNaoxl2pqr79RCFvBfaJOikaHRvGguxr1RJ7aDZNVvrZ64pSgqpG00rE3eSyU3s64gZq6qdDQjGkbYynh1KLk_9EvEEtHrD1QN0Nh5I3OgQ8FrSx-WAGdyyea5s_XZ6E5FirDR5NPtZ3O-cjwOOuxkviD71Wkxt9P8Qo-SMvAStEgODWo3rL4E_bH1ioFxTricsWEXTxPKVk3mWut_5ZgEptoDx2Bqf39VNImH9mKlM5wKnd_rLRIUnuUPKb6MPWrbNq1w3OLEvclPBg-yBN4fxf8HYSEjnMlf0U950LjV2XpRCxjkEMFdFIn8hg"
+    },
+    {
+        "title": "Ленинград — Плейбой#ПремьераКлипа #Премьера #Клип #Ленинград #Плейбой",
+        "url": "https://t.me/fresh_clips/504",
+        "image": "https://cdn4.telesco.pe/file/pj8ipCrfLtYvEZJ13oifdxb9pPTI-7PR5a5G2AmopqtN5L_6Gda18er0JZWWlmh7tg3e_cwFUAaJePyo1GY55YgUBdsbKYKP8cWjK7h_6khWBu8PMK6EWRSHJVt_yhiyySkPyolWi8UwGa-3IOL-_mEstduiKMfr7BKJnBmMxRjb32vi2uBSdJHgqc5Vsf_Aw8Ja8E0XK3Gbz-nkNbf_HJN3Hlb3wF5RYNBwEvDqpH2Xjt_8fawc8ts9NiJIZQhUZ3yd2wHMpEabImh_cWSLmjPHiNQA72-yGJN3umDK1ttxtRwICImvRgi_dhsCheLcu3USU3jKtgVyShJb68DzMg"
+    },
+    {
+        "title": "Miyagi & Эндшпиль — ANABIOS#ПремьераКлипа #Премьера #Клип #Miyagi #...",
+        "url": "https://t.me/fresh_clips/503",
+        "image": "https://cdn4.telesco.pe/file/YDhugrKiYlyK8x_Ym48IFjApJPauD0A2ojRu9dYSZNScc8hqvu_H7fG02_xUCcj3EHwRPHvuJ2hEcrhaxK6cTH8mpUPkyI0oyi80x2euN7oWYDIO12tbgj_InT6KyS6t-dx3mCxvtSIrZ4xs9Au4fabFF9zaDvl6FmG-hOnFpIlxyevxJMA_APYNp1F4mhJNvhEfrXlwH8l8IVjq0thD2tXZ9jjQ4SGr1QC3lC1xTsb3RenSWS2KQUCQkqDduKZecScZn22XwtuqrX8NFCllvez6AWkB1lpORJPd6LA--MCwIwDXqBqYtjwF6XwbQAon2yy23g19lMVrdWFNg1-urw"
+    },
+    {
+        "title": "LOBODA — ВЗРОСЛЫЕ ДЕВОЧКИ НЕ ПЛАЧУТ#ПремьераКлипа #Премьера #Клип #...",
+        "url": "https://t.me/fresh_clips/502",
+        "image": "https://cdn4.telesco.pe/file/GgpWCZTYazkRLEIRuyIDnLsE6UZBxKIsRNDYsBSfbWo1k8tP7N5r2jIUMQ3O1UnpIO3JBgmlPYTPtK2Opkvsnt9IGRA1cVt0Fq1D3s7oGuXz9mi0PFhzTJPDWPcppW8a99O4aCs8FRtGhNDmQABHDYT8Yh3oR1WTHOtRzsbYzc05njVlsKEnNdxUsj8LaB_r6pSYWw7nw4gbCd7Khi2k_lqjGFBmxmcDnz0yrBc2Z4x3-KJDYO5Xwi_IUgJ5wRYm3TJAu5WuzK5xELuCx6cNqcYMR4TTaG3kzKVLTuHmQdUbaD24LZIJt8Z5Yn52FbeXZMFMqHqvpIoyzs0v15DS4g"
+    },
+    {
+        "title": "10AGE & Анет Сай - Пропадает #ПремьераКлипа #Премьера #Клип #АнетСа...",
+        "url": "https://t.me/fresh_clips/501",
+        "image": "https://cdn4.telesco.pe/file/P99-nO-P6hafn2ZQBXiq8O7NKW0sbj1YASPkAWP6WBD6UEa2wxoxO1gXJ9m0IBOZ7QxVdG9xgnff0NldeIaLb_xjigNtet2tGJK-hxVFccA6UKS7CHilahIXr0tYLurMNBslKg5wYabAPu3QO_-wyOr0Q4EChn3QAy3FLQRf8XJSATugYh1rhPmnb_mCy_bPecamvCqiMhvMWpP-NQ4qp0BAgbnay7pV3bLDrR11028ghZHhWae_3tjpXTg1B_HEVh-u8ach9PSmQdqEw8O7AO6SAFGv_Cr1gcjrut6qSWNHN9S0rtB559GLLWq4DucxCgVKR7CnZo33W11CpcDOwA"
+    },
+    {
+        "title": "Александр Ревва — Артур Пирожков - Похудеем позже#ПремьераКлипа #Пр...",
+        "url": "https://t.me/fresh_clips/500",
+        "image": "https://cdn4.telesco.pe/file/XCssgheyWLSbPC9nZlgHL5ThKAQrqisWUdU67_y55vdPDw9u7zYVrNZBtldHYhBQe9iKLMEBhMhwFuW6jBkmSTDAlclyZJMqkEan2fbL6_t1gJnYMQzW6M1Gyr0nip60m04OSarhSdiy2ibmqR4c9IbJ87MN1OfKHJArC0IUmsno3NrJqkxyb1VmKrzODBkYmhFNSpRRgcy9y2g6GCcE81qpSgsEPY91FENq9HaZsUcuFjk8rh_IKBf20CuPhcfM67c9JFeLRiWk-6Xnj8gkPmFvxEcbcVnHQPuGno47YzqELblC48OUPI5Fcb0IiePfBS__Vg5aaFu7a1TEae9-1w"
+    },
+    {
+        "title": "Клава Кока — Сто шагов назад#ПремьераКлипа #Премьера #Клип #КлаваКо...",
+        "url": "https://t.me/fresh_clips/499",
+        "image": "https://cdn4.telesco.pe/file/O6vpYxUNojGqaB441wCqALxYYpZRN3xl2qYQNFm_MwmLEQNUtINrwBHs2z05eBC-EvbcaPtgazEt4DfPGkCOH2Z_MCrMD9HzeW_RPff9wlg6JNMfT-u6KwFqZnKz68ig4mgbGx1HN3DofzLOCUE00vHTF7JmCS6D0gPGnRAKduKDuLg_9xcglpIt82iqDtyTPvYeWgoaXDBh4tvFl4A-GGWi4TGg-DW68XjYXLxp_p1v-fSOTdy5fXxOiBpxBqAeE1n09X1WJZ9Em990EB6uNd0jh44IjaG0oJ5BEkGoeoM_-4k5CFm8vHRY2c5-bhRb7XAbYko2e7_i7cf4H99uLA"
+    },
+    {
+        "title": "NЮ — Как же мы#ПремьераКлипа #Премьера #Клип #NЮ #КакЖеМы",
+        "url": "https://t.me/fresh_clips/498",
+        "image": "https://cdn4.telesco.pe/file/sR0yUKNdPp5kCiZ2MNaQG19-jux9ZJpqA_mPHaW0g1Bg8mTMKr25SyvFq2m_xdQRVq8jDTlh6ITthKRb3vE6K3NwB_YzR5ffkHP9IKB_PMYSWZe2IR6SlwG8KXXnbRCHJ93aKtZUUQ0--bWGf92umtGX3ii_9szZ-iglNMVwHwtD8hLutbMe-WZ73Z5VqKNlPcyKnpV_w4hkKMaVeGP5a83cnyyr0LncYYrvgxKw7csW3U_Bkw9wl_7qX2Zn-ZWri9hdGuTFXcrPzM9S6wsFBmD8-o-K42hcJXc1VHwLUPI93I28GEgyVJIYFw0LgB5WioDrt1nJqGsj2lLNR4DMNQ"
+    },
+    {
+        "title": "DJ BlokNote — Александр Пушкин - У лукоморья дуб зелёный#ПремьераКл...",
+        "url": "https://t.me/fresh_clips/497",
+        "image": "https://cdn4.telesco.pe/file/iz-7BswsNdWwdu6ljpC6PaMPA91-y3vvz8ph3WOq0lh2CivP68aGbjsnW2qW67an-Jh27Hf_0XyJM2QaQ5XfAtFkkKtSg8yey9Di17NHXMz2jGgtvLTruVkGIS8TUmMQncAe8rpmtMGefzzHgK_wyrhgCdQloP0aSGLcPJoYQ6PUgHxyS_un548m0O8QDrxTvvvy51EiFZgonYOEkpOr0H92RY03iVDjMM13QV-HfcZ6qc_OCeuDKidI43-hYFt5k5wAPLE9V8scUL-zfRsZ5TuvtEGr2KO6diuY4aGhwe2aUh8ymlHIheGLBSxrX1m3_neXItlt--LB_ZsU6u9KEA"
+    },
+    {
+        "title": "Максим АРШАВИН — Горько#ПремьераКлипа #Премьера #Клип #МаксимАРШАВИ...",
+        "url": "https://t.me/fresh_clips/496",
+        "image": "https://cdn4.telesco.pe/file/vOJ7sc3NTpKc05UfhlKsEAcJtK2AkU7rbToY9MSQbvPk81l7aMLjQ7GIQMIKThYsYbFtnwgJ2K3n5vxdd6xa_ITBi0rxrOrCJ8RRN255cznEq4nS1e9bfuD-AJldwRFRjDDqwF0WCc_YgJTl6xfJq15LS6MN100q49_RYXCTnsQABVzXp8peQ3rncDMeoeX3RvIl-FzMyshBTTY6I1QDLi2X2YJ7xzOCGf1fziRf_PS7MQTEfcM6eFqZghAjB3idnFIhPu9Phq_9hMeSlEvgbMBZTy-VeDOskHTeZO54iGmEh0HYPg83EbNdh4Rp03D1Ijh5AQDIfqICC9kn0_bibw"
+    }
+]
