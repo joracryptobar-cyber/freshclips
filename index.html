@@ -154,18 +154,26 @@
         /* ======= АДАПТАЦИЯ ДЛЯ ТЕЛЕФОНОВ ======= */
         @media (max-width: 768px) {
             .cover-image { 
-                /* Увеличили высоту для мобилки, чтобы показать кораллы и воду */
                 height: 200px; 
-                /* Подменяем картинку на вашу новую (укажите правильное имя файла!) */
                 background-image: url('mobile_cover.png');
-                background-size: cover; /* Заполняем весь блок */
-                background-position: center; /* Центрируем, чтобы текст был ровно */
+                background-size: cover; 
+                background-position: center; 
             }
             .profile-info { flex-direction: column; align-items: flex-start; text-align: left; padding: 10px 20px 20px; }
             .avatar-container { margin-top: -60px; } 
             .avatar { width: 90px; height: 90px; } 
             .profile-actions { width: 100%; flex-direction: column; }
             .btn { width: 100%; text-align: center; box-sizing: border-box; }
+
+            /* Делаем клипы в 2 колонки */
+            .grid { 
+                grid-template-columns: repeat(2, 1fr); 
+                gap: 12px; /* Чуть уменьшаем отступы между карточками */
+            }
+            /* Делаем текст и кнопку Play компактнее для маленьких карточек */
+            .clip-info { padding: 8px 10px; }
+            .clip-info h3 { font-size: 12px; }
+            .play-btn { width: 36px; height: 36px; font-size: 14px; }
         }
     </style>
 </head>
