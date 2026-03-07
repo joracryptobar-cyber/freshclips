@@ -39,32 +39,60 @@
         .btn-primary, .btn-secondary { background-color: var(--btn-green); }
         .btn-primary:hover, .btn-secondary:hover { background-color: var(--btn-green-hover); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(140, 198, 63, 0.3); }
 
-        /* ======= ЛИПКАЯ ПАНЕЛЬ (ПОИСК И ФИЛЬТРЫ) ======= */
+        /* ======= ЛИПКАЯ ПАНЕЛЬ УПРАВЛЕНИЯ ======= */
         .sticky-control-panel {
             position: sticky; top: 0; z-index: 100; 
             background: rgba(10, 10, 12, 0.85); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             padding: 15px 0; margin-bottom: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);
         }
         
-        .search-sort-row { display: flex; gap: 12px; margin-bottom: 15px; }
+        .search-sort-row { display: flex; gap: 12px; margin-bottom: 15px; align-items: stretch; }
         
+        /* Поиск */
         .search-wrapper { position: relative; flex-grow: 1; }
-        #search-input { width: 100%; padding: 14px 45px 14px 20px; border-radius: 25px; background-color: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-main); font-size: 15px; box-sizing: border-box; outline: none; transition: all 0.3s ease; font-family: inherit; }
+        #search-input { 
+            width: 100%; height: 100%; padding: 14px 45px 14px 20px; border-radius: 25px; 
+            background-color: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1); 
+            color: var(--text-main); font-size: 15px; box-sizing: border-box; outline: none; 
+            transition: all 0.3s ease; font-family: inherit; 
+        }
         #search-input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(140, 198, 63, 0.2); }
         
-        /* Крестик очистки поиска */
         #clear-search { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); display: none; font-size: 18px; width: 24px; height: 24px; text-align: center; line-height: 24px; border-radius: 50%; }
         #clear-search:hover { color: #fff; background: rgba(255,255,255,0.1); }
 
-        /* Сортировка */
-        .sort-select { padding: 0 15px; border-radius: 25px; background-color: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-main); outline: none; cursor: pointer; font-family: inherit; font-size: 14px; min-width: 150px; }
-        .sort-select:focus { border-color: var(--accent); }
+        /* Обновленный дизайн Сортировки */
+        .sort-select { 
+            padding: 14px 40px 14px 20px; 
+            border-radius: 25px; 
+            background-color: var(--card-bg); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            color: var(--text-main); 
+            outline: none; 
+            cursor: pointer; 
+            font-family: inherit; 
+            font-size: 15px; 
+            min-width: 200px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            
+            /* Убираем стандартную стрелку ОС */
+            appearance: none; 
+            -webkit-appearance: none;
+            
+            /* Рисуем свою красивую векторную стрелку */
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2393939a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 18px center;
+        }
+        .sort-select:hover { border-color: rgba(255, 255, 255, 0.2); }
+        .sort-select:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(140, 198, 63, 0.2); }
 
-        /* Фильтры (Таблетки) */
-        .filters-scroll-area { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; /* Для Firefox */ }
-        .filters-scroll-area::-webkit-scrollbar { display: none; /* Скрываем скроллбар для красоты */ }
+        /* Фильтры (Месяцы) */
+        .filters-scroll-area { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+        .filters-scroll-area::-webkit-scrollbar { display: none; }
         
-        .filter-chip { padding: 6px 16px; border-radius: 20px; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.05); color: var(--text-muted); font-size: 13px; cursor: pointer; white-space: nowrap; transition: all 0.2s; user-select: none; }
+        .filter-chip { padding: 8px 18px; border-radius: 20px; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.05); color: var(--text-muted); font-size: 13px; cursor: pointer; white-space: nowrap; transition: all 0.2s; user-select: none; }
         .filter-chip:hover { border-color: var(--accent); color: #fff; }
         .filter-chip.active { background: var(--accent); color: #111; border-color: var(--accent); font-weight: 600; }
 
@@ -110,9 +138,9 @@
             .btn { width: 100%; padding: 8px 10px; font-size: 11px; white-space: nowrap; gap: 6px; }
             .btn-icon { width: 18px; height: 18px; }
             
-            /* Адаптация панели поиска */
+            /* Адаптация новой панели управления */
             .search-sort-row { flex-direction: column; gap: 10px; }
-            .sort-select { width: 100%; padding: 12px 15px; }
+            .sort-select { width: 100%; padding: 14px 20px; } /* Делаем кнопку сортировки комфортной для пальца */
             .sticky-control-panel { padding: 10px 0; }
 
             .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
@@ -166,7 +194,6 @@
             </div>
             
             <div class="filters-scroll-area" id="month-filters"></div>
-            <div class="filters-scroll-area" id="tag-filters" style="margin-top: 8px;"></div>
         </div>
 
         <h2 class="section-title">
@@ -202,10 +229,7 @@
         let currentDisplayed = 0;    
         const CLIPS_PER_PAGE = 12;   
         
-        // Текущие активные фильтры
         let activeMonth = null;
-        let activeTag = null;
-        
         const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
 
         async function loadClips() {
@@ -215,10 +239,7 @@
                 
                 document.getElementById('loader').style.display = 'none';
                 
-                // Строим кнопки фильтров на основе загруженных данных
                 buildFiltersUi();
-                
-                // Применяем фильтры (изначально покажет все)
                 applyFilters();
             } catch (error) {
                 console.error('Ошибка загрузки клипов:', error);
@@ -228,29 +249,21 @@
             }
         }
 
-        // Автоматическое создание кнопок для месяцев и хэштегов
+        // Автоматическое создание кнопок только для месяцев
         function buildFiltersUi() {
             const monthSet = new Set();
-            const tagSet = new Set();
 
             allClipsData.forEach(clip => {
-                // Собираем месяцы
                 if (clip.timestamp) {
                     const d = new Date(clip.timestamp);
                     const monthStr = `${d.getFullYear()}-${d.getMonth()}`;
                     monthSet.add(monthStr);
                 }
-                // Собираем теги
-                if (clip.tags && clip.tags.length > 0) {
-                    clip.tags.forEach(tag => tagSet.add(tag));
-                }
             });
 
-            // Отрисовка Месяцев
             const monthContainer = document.getElementById('month-filters');
             if(monthSet.size > 0) {
                 monthContainer.innerHTML = `<div class="filter-chip active" id="month-all" onclick="setMonthFilter(null)">📅 Все месяцы</div>`;
-                // Сортируем от новых к старым
                 Array.from(monthSet).sort().reverse().forEach(m => {
                     const [year, monthIndex] = m.split('-');
                     const label = `${monthNames[monthIndex]} ${year}`;
@@ -259,25 +272,10 @@
             } else {
                 monthContainer.style.display = 'none';
             }
-
-            // Отрисовка Тегов
-            const tagContainer = document.getElementById('tag-filters');
-            if(tagSet.size > 0) {
-                tagContainer.innerHTML = `<div class="filter-chip active" id="tag-all" onclick="setTagFilter(null)">🏷 Все жанры</div>`;
-                Array.from(tagSet).sort().forEach(tag => {
-                    // Убираем решетку чисто для красивого отображения на кнопке
-                    const displayTag = tag.replace('#', '');
-                    tagContainer.innerHTML += `<div class="filter-chip" id="tag-${tag}" onclick="setTagFilter('${tag}')">${displayTag}</div>`;
-                });
-            } else {
-                tagContainer.style.display = 'none';
-            }
         }
 
-        // Установка фильтра по месяцу
         function setMonthFilter(monthStr) {
             activeMonth = monthStr;
-            // Обновляем визуальное выделение (кликнутая кнопка становится зеленой)
             document.querySelectorAll('#month-filters .filter-chip').forEach(el => el.classList.remove('active'));
             if(monthStr) {
                 document.getElementById(`month-${monthStr}`).classList.add('active');
@@ -287,65 +285,39 @@
             applyFilters();
         }
 
-        // Установка фильтра по тегу
-        function setTagFilter(tag) {
-            activeTag = tag;
-            document.querySelectorAll('#tag-filters .filter-chip').forEach(el => el.classList.remove('active'));
-            if(tag) {
-                document.getElementById(`tag-${tag}`).classList.add('active');
-            } else {
-                document.getElementById('tag-all').classList.add('active');
-            }
-            applyFilters();
-        }
-
-        // Главная функция: применяет Поиск + Сортировку + Фильтры
         function applyFilters() {
             const query = document.getElementById('search-input').value.toLowerCase().trim();
             const sortMode = document.getElementById('sort-select').value;
             
-            // 1. Поиск и Фильтрация
+            // Фильтрация
             filteredClipsData = allClipsData.filter(clip => {
-                // Проверка поиска
                 const matchesSearch = clip.title.toLowerCase().includes(query);
-                
-                // Проверка месяца
                 let matchesMonth = true;
                 if (activeMonth && clip.timestamp) {
                     const d = new Date(clip.timestamp);
                     const clipMonthStr = `${d.getFullYear()}-${d.getMonth()}`;
                     matchesMonth = (clipMonthStr === activeMonth);
                 }
-
-                // Проверка тега
-                let matchesTag = true;
-                if (activeTag) {
-                    matchesTag = clip.tags && clip.tags.includes(activeTag);
-                }
-
-                return matchesSearch && matchesMonth && matchesTag;
+                return matchesSearch && matchesMonth;
             });
 
-            // 2. Сортировка
+            // Сортировка
             if (sortMode === 'oldest') {
-                filteredClipsData.reverse(); // В базе они и так хранятся от новых к старым
+                filteredClipsData.reverse(); 
             } else if (sortMode === 'az') {
                 filteredClipsData.sort((a, b) => a.title.localeCompare(b.title));
             }
 
-            // 3. Динамический заголовок
+            // Динамический заголовок
             const headerText = document.getElementById('section-header-text');
             if (query) { headerText.innerText = 'Результаты поиска'; }
-            else if (activeTag) { headerText.innerText = 'Подборка: ' + activeTag; }
             else { headerText.innerText = 'Все клипы'; }
 
-            // Сброс счетчика и перерисовка
             document.getElementById('clips-grid').innerHTML = '';
             currentDisplayed = 0;
             renderNextClips();
         }
 
-        // Вывод карточек на экран
         function renderNextClips() {
             const grid = document.getElementById('clips-grid');
             const loadMoreBtn = document.getElementById('load-more-btn');
@@ -367,8 +339,8 @@
                 card.className = 'clip-card';
                 card.style.animationDelay = `${index * 0.05}s`; 
 
-                // Бейдж "NEW" вешаем только если это сортировка "Сначала новые" и нет активных фильтров
-                const isDefaultView = !activeMonth && !activeTag && document.getElementById('search-input').value === '' && document.getElementById('sort-select').value === 'newest';
+                // Бейдж "NEW" вешаем только если это стандартный вид
+                const isDefaultView = !activeMonth && document.getElementById('search-input').value === '' && document.getElementById('sort-select').value === 'newest';
                 const originalIndex = allClipsData.indexOf(clip);
                 const badgeHtml = (isDefaultView && originalIndex >= 0 && originalIndex < 3) 
                     ? '<div class="new-badge">NEW 🔥</div>' 
@@ -415,7 +387,6 @@
             }
         }
 
-        // Поиск с появлением крестика
         const searchInput = document.getElementById('search-input');
         const clearBtn = document.getElementById('clear-search');
 
@@ -424,14 +395,12 @@
             applyFilters();
         });
 
-        // Функция очистки поиска
         function clearSearch() {
             searchInput.value = '';
             clearBtn.style.display = 'none';
             applyFilters();
         }
 
-        // Кнопка "Наверх"
         const backToTopBtn = document.getElementById('back-to-top');
         window.addEventListener('scroll', () => {
             if (window.scrollY > 400) {
