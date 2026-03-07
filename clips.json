@@ -1,0 +1,63 @@
+import os
+import json
+import asyncio
+from telethon import TelegramClient
+
+# Получаем секретные ключи из GitHub Actions
+API_ID = os.environ.get('API_ID')
+API_HASH = os.environ.get('API_HASH')
+BOT_TOKEN = os.environ.get('BOT_TOKEN')
+
+CHANNEL_USERNAME = 'fresh_clips'
+VIDEOS_TO_FETCH = 12 # Сколько клипов показывать на сайте
+
+async def main():
+    if not all([API_ID, API_HASH, BOT_TOKEN]):
+        print("Ошибка: Не найдены ключи API_ID, API_HASH или BOT_TOKEN!")
+        return
+
+    # Создаем папку для картинок, если её нет
+    os.makedirs('images', exist_ok=True)
+    
+    # Подключаемся к Telegram как бот (не требует ввода СМС-кодов)
+    client = TelegramClient('bot_session', int(API_ID), API_HASH)
+    await client.start(bot_token=BOT_TOKEN)
+    
+    print(f"Бот успешно подключен! Собираем видео из @{CHANNEL_USERNAME}...")
+    
+    clips_data = []
+    
+    # Ищем последние посты
+    async for message in client.iter_messages(CHANNEL_USERNAME, limit=50):
+        # Если в сообщении есть видео и мы еще не набрали нужное количество
+        if message.video and len(clips_data) < VIDEOS_TO_FETCH:
+            post_url = f"https://t.me/{CHANNEL_USERNAME}/{message.id}"
+            
+            # Обрабатываем текст
+            title = message.text if message.text else "Свежий клип 🔥"
+            title = title.replace('\n', ' ')
+            if len(title) > 60: 
+                title = title[:57] + "..."
+            
+            # Скачиваем превью
+            thumb_path = f"images/thumb_{message.id}.jpg"
+            if not os.path.exists(thumb_path):
+                print(f"Скачиваю превью для поста {message.id}...")
+                await client.download_media(message, file=thumb_path, thumb=-1)
+            
+            # Добавляем в список
+            clips_data.append({
+                "id": message.id,
+                "title": title,
+                "url": post_url,
+                "image": thumb_path
+            })
+            
+    # Сохраняем базу данных в файл
+    with open("clips.json", "w", encoding="utf-8") as file:
+        json.dump(clips_data, file, ensure_ascii=False, indent=4)
+        
+    print(f"Готово! Собрано {len(clips_data)} клипов. Файл clips.json обновлен.")
+
+if __name__ == '__main__':
+    asyncio.run(main())
