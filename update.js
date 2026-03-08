@@ -1,8 +1,9 @@
 const fs = require('fs');
 const cheerio = require('cheerio');
+const puppeteer = require('puppeteer'); // Подключаем управление браузером
 
 // ==========================================
-// 1. СБОРЩИК TELEGRAM
+// 1. СБОРЩИК TELEGRAM (Обычный быстрый метод)
 // ==========================================
 async function updateTelegramClips() {
     try {
@@ -68,25 +69,36 @@ async function updateTelegramClips() {
 }
 
 // ==========================================
-// 2. СБОРЩИК ВКОНТАКТЕ (МАСКИРОВКА ПОД GOOGLEBOT)
+// 2. СБОРЩИК ВКОНТАКТЕ (Эмуляция реального браузера)
 // ==========================================
 async function updateVKClips() {
-    console.log('Начинаем сбор клипов ВК (Обход защиты)...');
+    console.log('Начинаем сбор клипов ВК (запуск невидимого браузера Chrome)...');
     let vkClips = [];
-    try {
-        // Идем на классический домен
-        const url = 'https://vk.com/video/@fresh_clips';
-        
-        // Маскируемся под официального поискового робота Google
-        const response = await fetch(url, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
-                'Accept-Language': 'ru-RU,ru;q=0.9'
-            },
-            redirect: 'follow'
-        });
-        const html = await response.text();
+    let browser = null;
 
+    try {
+        // Запускаем браузер со специальными флагами для серверов GitHub
+        browser = await puppeteer.launch({
+            headless: 'new',
+            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+        });
+        
+        const page = await browser.newPage();
+        
+        // Притворяемся компьютером на Windows
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+        
+        console.log('VK: Переходим на страницу канала...');
+        // networkidle2 означает "ждать, пока не загрузятся все скрипты и видео"
+        await page.goto('https://vkvideo.ru/@fresh_clips', { waitUntil: 'networkidle2', timeout: 45000 });
+        
+        // Ждем еще 3 секунды, чтобы ВК точно отрисовал карточки с клипами
+        await new Promise(r => setTimeout(r, 3000));
+        
+        // Забираем исходный код страницы, который сгенерировал браузер
+        const html = await page.content();
+
+        // Парсим JSON данные, которые ВК теперь добровольно отдал браузеру
         const blocks = html.split('"videoId":');
         for (let i = 1; i < blocks.length; i++) {
             const block = blocks[i].substring(0, 1500);
@@ -103,7 +115,7 @@ async function updateVKClips() {
                 try { rawTitle = JSON.parse(`"${rawTitle}"`); } catch(e) {}
                 const title = rawTitle.length > 70 ? rawTitle.substring(0, 67) + '...' : rawTitle;
 
-                const postUrl = `https://vk.com/video${ownerId}_${vidId}`;
+                const postUrl = `https://vkvideo.ru/video${ownerId}_${vidId}`;
                 const playerUrl = `https://vk.com/video_ext.php?oid=${ownerId}&id=${vidId}&hd=2&autoplay=1`;
 
                 let image = 'https://vk.com/images/video_empty.png';
@@ -128,19 +140,24 @@ async function updateVKClips() {
         }
 
     } catch (e) {
-        console.error('Ошибка при сборе ВК:', e);
+        console.error('VK: Ошибка при работе с браузером:', e);
+    } finally {
+        if (browser) {
+            await browser.close(); // Обязательно закрываем браузер
+        }
     }
 
-    if (vkClips && vkClips.length > 0) {
-        vkClips = vkClips.slice(0, 50); 
+    if (vkClips.length > 0) {
+        vkClips = vkClips.slice(0, 50); // Берем последние 50
         fs.writeFileSync('vk_clips.json', JSON.stringify(vkClips, null, 4));
-        console.log(`VK: Успешно сохранено ${vkClips.length} клипов в vk_clips.json.`);
+        console.log(`VK: Успешно сохранено ${vkClips.length} клипов без всяких API ключей!`);
     } else {
-        console.log('VK: Не удалось обойти защиту ВК. Файл остается пустым.');
+        console.log('VK: Не удалось собрать клипы. Возможно, ВК включил супер-защиту.');
         fs.writeFileSync('vk_clips.json', JSON.stringify([]));
     }
 }
 
+// Запуск обеих задач
 async function runTasks() {
     await updateTelegramClips();
     await updateVKClips();
