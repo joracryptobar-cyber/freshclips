@@ -21,7 +21,7 @@ jobs:
           node-version: '20'
 
       - name: Установка библиотек
-        run: npm install cheerio@1.0.0-rc.12 puppeteer
+        run: npm install cheerio puppeteer
 
       - name: Запуск парсера
         run: node update.js
