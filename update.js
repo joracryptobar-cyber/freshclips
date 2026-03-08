@@ -52,7 +52,7 @@ async function updateVKClips() {
         await page.setViewport({ width: 1280, height: 1600 });
 
         console.log('VK: Navigating to page...');
-        await page.goto('https://vkvideo.ru/@fresh_clips/all', { waitUntil: 'networkidle2', timeout: 60000 });
+        await page.goto('https://vkvideo.ru/@fresh_clips/all/', { waitUntil: 'networkidle2', timeout: 60000 });
 
         // Проверка: не выкинуло ли нас на логин?
         const currentUrl = page.url();
