@@ -53,7 +53,7 @@ async function updateVKClips() {
         await page.setViewport({ width: 1280, height: 5000 });
         
         console.log('VK: Loading page...');
-        await page.goto('https://vkvideo.ru/@fresh_clips/all', { waitUntil: 'networkidle2', timeout: 60000 });
+        await page.goto('https://vkvideo.ru/@fresh_clips/all/', { waitUntil: 'networkidle2', timeout: 60000 });
 
         // Даем время на первичную прогрузку
         await new Promise(r => setTimeout(r, 5000));
