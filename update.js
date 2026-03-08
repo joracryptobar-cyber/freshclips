@@ -2,28 +2,55 @@ const fs = require('fs');
 const cheerio = require('cheerio');
 
 // ==========================================
-const VK_API_KEY = 'vk1.a.7ge6OqgZ6Zt5LorZXDdQeqSeycIi13axxrdZgriCp3V3VhEF3f1BHkLe3RJpJuhdaqbW92UoknxE1mQfZjqALBPGlXXPyMd5-NL_q9oOjthVy9urKttkwKhwNTcbvvWmf3qDAhvqxzgqE6skj3Rl4tDP2HwRDJnWPIa0OUia3BSdx69C4UnH32vnGiRR-cKdycpmUq2ns3p8drk9eCHohA&expires_in=86400&user_id=15322444'; 
-const VK_OWNER_ID = '-1946517'; // Точный ID вашей группы!
+// ВАШ СЕРВИСНЫЙ КЛЮЧ ВКОНТАКТЕ (API)
+// ==========================================
+const VK_API_KEY = 'ВСТАВЬТЕ_СЮДА_ВАШ_КЛЮЧ'; 
+const VK_OWNER_ID = '-1946517'; 
 // ==========================================
 
+// 1. СБОРЩИК TELEGRAM
 async function updateTelegramClips() {
     try {
         console.log('Starting Telegram extraction...');
         let allClips = [];
         let url = 'https://t.me/s/fresh_clips';
-        for (let i = 0; i < 5; i++) {
+        let pagesToFetch = 20; 
+        
+        for (let i = 0; i < pagesToFetch; i++) {
             const response = await fetch(url);
             const html = await response.text();
             const $ = cheerio.load(html);
+            
             $('.tgme_widget_message').each((index, el) => {
                 const videoThumb = $(el).find('.tgme_widget_message_video_thumb');
                 if (videoThumb.length > 0) {
                     const style = videoThumb.attr('style') || '';
                     const imgMatch = style.match(/url\(['"]?([^'")]+)['"]?\)/);
                     const image = imgMatch ? imgMatch[1] : '';
+                    
                     const postUrl = $(el).find('.tgme_widget_message_date').attr('href') || '';
-                    let title = $(el).find('.tgme_widget_message_text').text().trim().substring(0, 60) || 'TG Clip 🔥';
-                    allClips.push({ title, url: postUrl, image, timestamp: new Date().toISOString() });
+                    
+                    // ИСПРАВЛЕНО: Железобетонный поиск даты
+                    let timestamp = new Date().toISOString();
+                    const timeEl = $(el).find('time'); // Ищем любой тег time в посте
+                    if (timeEl.length > 0 && timeEl.attr('datetime')) { 
+                        timestamp = timeEl.attr('datetime'); 
+                    }
+
+                    let views = '';
+                    const viewsEl = $(el).find('.tgme_widget_message_views');
+                    if (viewsEl.length > 0) { views = viewsEl.text().trim(); }
+                    
+                    let title = 'TG Clip 🔥';
+                    const textEl = $(el).find('.tgme_widget_message_text');
+                    if (textEl.length > 0) {
+                        let rawText = textEl.text();
+                        rawText = rawText.replace('Премьера клипа! ', '').split('#')[0].trim();
+                        title = rawText.length > 60 ? rawText.substring(0, 57) + '...' : rawText;
+                        if (!title) title = 'TG Clip 🔥';
+                    }
+
+                    allClips.push({ title, url: postUrl, image, timestamp, views });
                 }
             });
             const moreLink = $('.tme_messages_more').attr('href');
@@ -31,10 +58,11 @@ async function updateTelegramClips() {
             url = 'https://t.me' + moreLink;
         }
         fs.writeFileSync('clips.json', JSON.stringify(allClips, null, 4));
-        console.log(`TG: Saved ${allClips.length} clips.`);
+        console.log(`TG: Saved ${allClips.length} clips with exact dates!`);
     } catch (e) { console.error('TG Error:', e); }
 }
 
+// 2. СБОРЩИК ВКОНТАКТЕ (API)
 async function updateVKClips() {
     console.log('Starting VK extraction via API...');
     
@@ -45,11 +73,9 @@ async function updateVKClips() {
     }
 
     try {
-        // Запрашиваем видео напрямую по ID
-        const videoUrl = `https://api.vk.com/method/video.get?owner_id=${VK_OWNER_ID}&count=100&v=5.131&access_token=${VK_API_KEY}`;
+        const videoUrl = `https://api.vk.com/method/video.get?owner_id=${VK_OWNER_ID}&count=200&v=5.131&access_token=${VK_API_KEY}`;
         const videoRes = await fetch(videoUrl).then(r => r.json());
 
-        // Проверка на ошибку самого ключа
         if (videoRes.error) {
             console.error('VK API Error:', videoRes.error.error_msg);
             fs.writeFileSync('vk_clips.json', JSON.stringify([]));
@@ -83,6 +109,7 @@ async function updateVKClips() {
                     playerUrl: playerUrl,
                     image: image,
                     views: viewsStr,
+                    // Время ВК всегда приходило правильным (в формате Unix)
                     timestamp: new Date(v.date * 1000).toISOString()
                 });
             }
