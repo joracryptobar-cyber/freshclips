@@ -24,11 +24,7 @@
         .main-wrapper { max-width: 1200px; margin: 20px auto; padding: 0 15px; min-height: 100vh; display: flex; flex-direction: column; }
 
         .profile-header { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.5); margin-bottom: 20px; border: 2px solid var(--accent); }
-        .cover-image { 
-            height: 180px; /* Увеличили высоту, чтобы текст влез */
-            background-position: center center; /* Центрируем картинку, чтобы не резало верх */
-            background-image: url('https://sun9-3.userapi.com/impf/DiuXQCGE1N_Wty_HCbV8CoCBdQ3L07UdtuVRwA/thJWeQCYs8I.jpg?size=1920x768&quality=95&crop=26,0,1697,678&sign=d9c1b7989607c18bc3cb14a7521395d3&type=cover_group'); 
-        }
+        .cover-image { width: 100%; height: 320px; background-image: url('https://sun9-3.userapi.com/impf/DiuXQCGE1N_Wty_HCbV8CoCBdQ3L07UdtuVRwA/thJWeQCYs8I.jpg?size=1920x768&quality=95&crop=26,0,1697,678&sign=d9c1b7989607c18bc3cb14a7521395d3&type=cover_group'); background-size: cover; background-position: center 100%; }
         .profile-info { padding: 15px 30px 25px; display: flex; align-items: center; flex-wrap: wrap; gap: 20px; position: relative; }
         .avatar-container { margin-top: -65px; position: relative; }
         .avatar { width: 130px; height: 130px; border-radius: 50%; border: 4px solid var(--card-bg); background-color: #fff; object-fit: cover; }
@@ -112,7 +108,7 @@
         #back-to-top.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
         
         @media (max-width: 768px) {
-            .cover-image { height: 120px; background-image: url('mobile_cover.png'); }
+            .cover-image { height: 120px; background-position: center center; background-image: url('mobile_cover.png'); }
             .profile-info { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "avatar ." "details actions"; align-items: end; padding: 10px 15px 15px; gap: 5px 15px; }
             .avatar-container { grid-area: avatar; margin-top: -45px; } .avatar { width: 75px; height: 75px; border-width: 3px; } 
             .profile-details { grid-area: details; margin-top: 0; padding-bottom: 2px; } .profile-details h1 { font-size: 21px; } .profile-details p { font-size: 12px; margin-top: 2px; }
