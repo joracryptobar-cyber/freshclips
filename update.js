@@ -62,4 +62,45 @@ async function updateVKClips() {
                 const match = href.match(/\/video(-?\d+)_(\d+)/);
                 
                 if (match) {
-                    // УЛУЧШ
+                    // УЛУЧШЕННЫЙ ПОИСК НАЗВАНИЯ: 
+                    // Сначала ищем в aria-label (там обычно полное название), если нет - в тексте
+                    let rawTitle = link.getAttribute('aria-label') || link.innerText || '';
+                    let cleanTitle = rawTitle.replace(/\n/g, ' ').trim();
+                    
+                    // Если в название попало только время (напр. "3:04"), ставим заглушку
+                    if (/^\d+:\d+$/.test(cleanTitle) || cleanTitle.length < 2) {
+                        cleanTitle = "VK Clip 🔥";
+                    }
+
+                    // Ограничиваем длину
+                    if (cleanTitle.length > 80) cleanTitle = cleanTitle.substring(0, 77) + '...';
+
+                    res.push({
+                        title: cleanTitle,
+                        url: href,
+                        playerUrl: `https://vk.com/video_ext.php?oid=${match[1]}&id=${match[2]}&hd=2&autoplay=1`,
+                        image: link.querySelector('img')?.src || 'https://vk.com/images/video_empty.png'
+                    });
+                }
+            });
+            return res;
+        });
+
+        // Оставляем только уникальные и сохраняем
+        const uniqueVK = Array.from(new Map(clips.map(item => [item.playerUrl, item])).values());
+        fs.writeFileSync('vk_clips.json', JSON.stringify(uniqueVK.slice(0, 70), null, 4));
+        console.log(`VK: Saved ${uniqueVK.length} clips.`);
+        
+    } catch (e) { 
+        console.error('VK Error:', e.message); 
+    } finally { 
+        if (browser) await browser.close(); 
+    }
+}
+
+async function runTasks() {
+    await updateTelegramClips();
+    await updateVKClips();
+}
+
+runTasks();
