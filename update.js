@@ -68,79 +68,70 @@ async function updateTelegramClips() {
     }
 }
 
-
 // ==========================================
-// 2. СБОРЩИК ВКОНТАКТЕ (БЕЗ API)
+// 2. УМНЫЙ СБОРЩИК ВКОНТАКТЕ (БЕЗ API КЛЮЧЕЙ)
 // ==========================================
 async function updateVKClips() {
-    console.log('Начинаем сбор клипов с ВКонтакте...');
+    console.log('Начинаем сбор клипов с ВКонтакте (vkvideo.ru)...');
     let vkClips = [];
     try {
-        // Притворяемся мобильным браузером (iPhone), чтобы ВК отдал нам легкую мобильную версию
-        const url = 'https://m.vk.com/video/@fresh_clips';
+        const url = 'https://vkvideo.ru/@fresh_clips';
+        // Притворяемся обычным пользователем компьютера
         const response = await fetch(url, {
             headers: {
-                'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 'Accept-Language': 'ru-RU,ru;q=0.9'
             }
         });
-        
         const html = await response.text();
-        const $ = cheerio.load(html);
         
-        // В мобильной версии ВК видео часто лежат внутри ссылок. Ищем все теги <a> с ссылкой на видео.
-        $('a[href^="/video-"]').each((i, el) => {
-            const link = $(el).attr('href');
+        // ВК прячет данные от ботов в JSON-формате внутри HTML-кода.
+        // Мы используем Regex, чтобы "выцепить" ID видео, Название и Обложку напрямую из кода!
+        const videoRegex = /"ownerId":(-?\d+),"videoId":(\d+),"title":"([^"\\]*(?:\\.[^"\\]*)*)"/g;
+        let match;
+        
+        while ((match = videoRegex.exec(html)) !== null) {
+            const ownerId = match[1];
+            const vidId = match[2];
             
-            // Проверяем, что это формат ссылки на видео: /video-12345_67890
-            if (link && link.match(/\/video(-?\d+)_(\d+)/)) {
-                const videoIdMatch = link.match(/\/video(-?\d+)_(\d+)/);
-                const ownerId = videoIdMatch[1];
-                const vidId = videoIdMatch[2];
-                
-                const postUrl = 'https://vk.com' + link.split('?')[0]; // Ссылка на сам пост
-                
-                // МАГИЯ: Собираем системную ссылку для встраиваемого плеера!
-                const playerUrl = `https://vk.com/video_ext.php?oid=${ownerId}&id=${vidId}&hd=2&autoplay=1`;
-                
-                // Ищем название
-                let title = $(el).attr('aria-label') || $(el).attr('title') || $(el).find('.VideoItem__title').text().trim();
-                if (!title) title = 'Клип ВКонтакте 🔥';
-                
-                // Ищем картинку-превью
-                let image = '';
-                const style = $(el).find('.VideoItem__thumb, .video_item_thumb').attr('style') || $(el).attr('style') || '';
-                const imgMatch = style.match(/url\(['"]?([^'")]+)['"]?\)/);
-                if (imgMatch) {
-                    image = imgMatch[1];
-                } else {
-                    image = $(el).find('img').attr('src') || '';
-                }
-
-                // Ищем просмотры
-                let views = $(el).find('.VideoItem__views, .video_item_views').text().trim() || '';
-                views = views.replace('просмотров', '').replace('просмотра', '').trim();
-
-                // Проверяем, чтобы видео не дублировалось и картинка была найдена
-                if (image && !vkClips.some(c => c.url === postUrl)) {
-                    vkClips.push({
-                        title: title,
-                        url: postUrl,
-                        playerUrl: playerUrl,  // Передаем ссылку плеера в сайт
-                        image: image,
-                        views: views,
-                        timestamp: new Date().toISOString() // m.vk.com не отдает дату, используем время парсинга
-                    });
-                }
+            // Раскодируем название (убираем юникод вроде \u041a)
+            let rawTitle = match[3];
+            try { rawTitle = JSON.parse(`"${rawTitle}"`); } catch(e) {}
+            
+            const title = rawTitle.length > 70 ? rawTitle.substring(0, 67) + '...' : rawTitle;
+            const postUrl = `https://vkvideo.ru/video${ownerId}_${vidId}`;
+            
+            // Создаем официальную ссылку для встраиваемого плеера ВК
+            const playerUrl = `https://vk.com/video_ext.php?oid=${ownerId}&id=${vidId}&hd=2&autoplay=1`;
+            
+            // Ищем картинку в коде рядом с найденным видео
+            let image = 'https://vk.com/images/video_empty.png';
+            const blockStr = html.substring(match.index - 500, match.index + 1000);
+            const thumbMatch = blockStr.match(/"url":"(https:\/\/[^"]+\.jpg[^"]*)"/);
+            if (thumbMatch) {
+                try { image = JSON.parse(`"${thumbMatch[1]}"`); } catch(e) {}
             }
-        });
 
-        // Если удалось собрать клипы, сохраняем в файл
+            // Исключаем дубликаты
+            if (!vkClips.some(c => c.playerUrl === playerUrl)) {
+                vkClips.push({
+                    title: title,
+                    url: postUrl,
+                    playerUrl: playerUrl,
+                    image: image,
+                    views: 'ВК', // Просмотры без ключа достать сложно, ставим заглушку
+                    timestamp: new Date().toISOString() // Сортируем по времени парсинга
+                });
+            }
+        }
+
         if (vkClips.length > 0) {
+            // Ограничим до 50 последних видео
+            vkClips = vkClips.slice(0, 50);
             fs.writeFileSync('vk_clips.json', JSON.stringify(vkClips, null, 4));
             console.log(`VK: Успешно сохранено ${vkClips.length} клипов в vk_clips.json.`);
         } else {
-            console.log('VK: Клипы не найдены. Возможно, изменилась верстка сайта.');
+            console.log('VK: Клипы не найдены. Возможно, канал пуст.');
             fs.writeFileSync('vk_clips.json', JSON.stringify([])); 
         }
 
@@ -150,7 +141,7 @@ async function updateVKClips() {
     }
 }
 
-// Запускаем обе функции по очереди
+// Запускаем сбор
 async function runTasks() {
     await updateTelegramClips();
     await updateVKClips();
