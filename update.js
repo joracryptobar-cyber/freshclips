@@ -2,7 +2,7 @@ const fs = require('fs');
 const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
 
-// 1. TELEGRAM EXTRACTION (Original working logic)
+// 1. TELEGRAM EXTRACTION
 async function updateTelegramClips() {
     try {
         console.log('--- Starting Telegram extraction ---');
@@ -56,14 +56,13 @@ async function updateTelegramClips() {
     } catch (e) { console.error('--- TG Error ---', e); }
 }
 
-// 2. VK EXTRACTION (New Puppeteer logic with Unicode fixes)
+// 2. VK EXTRACTION
 async function updateVKClips() {
     console.log('--- Starting VK extraction (Puppeteer) ---');
     let browser;
     try {
         browser = await puppeteer.launch({ 
             headless: "new", 
-            // Important for Ubuntu Server
             args: ['--no-sandbox', '--disable-setuid-sandbox', '--lang=ru-RU,ru'] 
         });
         const page = await browser.newPage();
@@ -76,7 +75,7 @@ async function updateVKClips() {
                 let timer = setInterval(() => {
                     window.scrollBy(0, distance);
                     totalHeight += distance;
-                    if(totalHeight >= 50000){ clearInterval(timer); resolve(); }
+                    if(totalHeight >= 15000){ clearInterval(timer); resolve(); }
                 }, 400); 
             });
         });
@@ -87,15 +86,14 @@ async function updateVKClips() {
             let results = [];
             const cards = document.querySelectorAll('[data-testid="catalog_item_video"]');
             
-            // Safe Unicode roots
-            const mK = "\u0442\u044b\u0441"; // тыс
-            const mM = "\u043c\u043b\u043d"; // млн
-            const mDot = "\u00b7"; // dot
-            const mYesterday = "\u0432\u0447\u0435\u0440\u0430"; // вчера
-            const mD = "\u0434\u043d"; // дн
-            const mW = "\u043d\u0435\u0434"; // нед
-            const mMo = "\u043c\u0435\u0441"; // мес
-            const mY = "\u0433\u043e\u0434"; // год
+            const mK = "\u0442\u044b\u0441"; 
+            const mM = "\u043c\u043b\u043d"; 
+            const mDot = "\u00b7"; 
+            const mYesterday = "\u0432\u0447\u0435\u0440\u0430"; 
+            const mD = "\u0434\u043d"; 
+            const mW = "\u043d\u0435\u0434"; 
+            const mMo = "\u043c\u0435\u0441"; 
+            const mY = "\u0433\u043e\u0434"; 
 
             cards.forEach(card => {
                 const linkEl = card.querySelector('a[href*="/video"]');
@@ -162,9 +160,37 @@ async function updateVKClips() {
     finally { if (browser) await browser.close(); }
 }
 
+// 3. TASK MANAGER WITH 12-HOUR DELAY FOR VK
 async function runTasks() {
+    // Telegram is fast and lightweight, run it every time
     await updateTelegramClips();
-    await updateVKClips();
+
+    // 12 hours in milliseconds
+    const TWELVE_HOURS_MS = 12 * 60 * 60 * 1000; 
+    const VK_RUN_FILE = 'vk_last_run.txt';
+    let shouldRunVK = true;
+
+    // Check when VK was last updated
+    if (fs.existsSync(VK_RUN_FILE)) {
+        const lastRunStr = fs.readFileSync(VK_RUN_FILE, 'utf8');
+        const lastRunMs = parseInt(lastRunStr, 10);
+        
+        if (!isNaN(lastRunMs)) {
+            const timePassed = Date.now() - lastRunMs;
+            if (timePassed < TWELVE_HOURS_MS) {
+                shouldRunVK = false;
+                const hoursLeft = ((TWELVE_HOURS_MS - timePassed) / (1000 * 60 * 60)).toFixed(1);
+                console.log(`--- SKIPPING VK: Next update in ${hoursLeft} hours ---`);
+            }
+        }
+    }
+
+    // Run VK if 12 hours have passed or if it has never run before
+    if (shouldRunVK) {
+        await updateVKClips();
+        // Save the current time for the next check
+        fs.writeFileSync(VK_RUN_FILE, Date.now().toString(), 'utf8');
+    }
 }
 
 runTasks();
