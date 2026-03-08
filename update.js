@@ -1,8 +1,13 @@
 const fs = require('fs');
 const cheerio = require('cheerio');
-const puppeteer = require('puppeteer');
 
-// 1. TELEGRAM SCRAPER (Оставляем рабочую версию)
+// ==========================================
+// ВАШ СЕРВИСНЫЙ КЛЮЧ ВКОНТАКТЕ (API)
+// ==========================================
+const VK_API_KEY = 'vk1.a.7ge6OqgZ6Zt5LorZXDdQeqSeycIi13axxrdZgriCp3V3VhEF3f1BHkLe3RJpJuhdaqbW92UoknxE1mQfZjqALBPGlXXPyMd5-NL_q9oOjthVy9urKttkwKhwNTcbvvWmf3qDAhvqxzgqE6skj3Rl4tDP2HwRDJnWPIa0OUia3BSdx69C4UnH32vnGiRR-cKdycpmUq2ns3p8drk9eCHohA&expires_in=86400&user_id=15322444'; 
+const VK_DOMAIN = 'fresh_clips'; // Ваш канал
+
+// 1. СБОРЩИК TELEGRAM
 async function updateTelegramClips() {
     try {
         console.log('Starting Telegram extraction...');
@@ -19,7 +24,7 @@ async function updateTelegramClips() {
                     const imgMatch = style.match(/url\(['"]?([^'")]+)['"]?\)/);
                     const image = imgMatch ? imgMatch[1] : '';
                     const postUrl = $(el).find('.tgme_widget_message_date').attr('href') || '';
-                    let title = $(el).find('.tgme_widget_message_text').text().trim().substring(0, 60) || 'TG Clip';
+                    let title = $(el).find('.tgme_widget_message_text').text().trim().substring(0, 60) || 'TG Clip 🔥';
                     allClips.push({ title, url: postUrl, image, timestamp: new Date().toISOString() });
                 }
             });
@@ -32,102 +37,76 @@ async function updateTelegramClips() {
     } catch (e) { console.error('TG Error:', e); }
 }
 
-// 2. VK SCRAPER (Улучшенная маскировка и поиск)
+// 2. СБОРЩИК ВКОНТАКТЕ (API)
 async function updateVKClips() {
-    console.log('Starting VK extraction...');
-    let browser;
+    console.log('Starting VK extraction via API...');
+    
+    if (VK_API_KEY === 'ВСТАВЬТЕ_СЮДА_ВАШ_КЛЮЧ' || !VK_API_KEY) {
+        console.error('VK ERROR: Вы не вставили сервисный ключ в код!');
+        fs.writeFileSync('vk_clips.json', JSON.stringify([])); 
+        return;
+    }
+
     try {
-        browser = await puppeteer.launch({ 
-            headless: "new", 
-            args: [
-                '--no-sandbox', 
-                '--disable-setuid-sandbox',
-                '--disable-blink-features=AutomationControlled' // Скрываем, что мы бот
-            ] 
-        });
-        const page = await browser.newPage();
+        // Шаг 1: Конвертируем имя группы (fresh_clips) в числовой ID
+        const resolveUrl = `https://api.vk.com/method/utils.resolveScreenName?screen_name=${VK_DOMAIN}&v=5.131&access_token=${VK_API_KEY}`;
+        const resolveRes = await fetch(resolveUrl).then(r => r.json());
         
-        // Маскируемся под свежий Chrome на Windows
-        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
-        await page.setViewport({ width: 1280, height: 1600 });
+        let ownerId = null;
+        if (resolveRes.response && resolveRes.response.object_id) {
+            ownerId = resolveRes.response.type === 'group' ? -resolveRes.response.object_id : resolveRes.response.object_id;
+        }
 
-        console.log('VK: Navigating to page...');
-        await page.goto('https://vkvideo.ru/@fresh_clips/all/', { waitUntil: 'networkidle2', timeout: 60000 });
+        if (!ownerId) {
+            console.error('VK ERROR: Не удалось найти группу по этому адресу.');
+            return;
+        }
 
-        // Проверка: не выкинуло ли нас на логин?
-        const currentUrl = page.url();
-        console.log(`VK: Current browser URL: ${currentUrl}`);
+        // Шаг 2: Получаем последние 100 видео
+        const videoUrl = `https://api.vk.com/method/video.get?owner_id=${ownerId}&count=100&v=5.131&access_token=${VK_API_KEY}`;
+        const videoRes = await fetch(videoUrl).then(r => r.json());
 
-        console.log('VK: Waiting and scrolling...');
-        await new Promise(r => setTimeout(r, 5000));
-        await page.evaluate(() => window.scrollBy(0, 3000));
-        await new Promise(r => setTimeout(r, 3000));
+        let vkClips = [];
+        if (videoRes.response && videoRes.response.items) {
+            for (let v of videoRes.response.items) {
+                if (v.type !== 'video') continue; // Пропускаем прямые трансляции
 
-        const clips = await page.evaluate(() => {
-            const results = [];
-            // Ищем вообще все ссылки
-            const links = document.querySelectorAll('a');
-            
-            links.forEach(link => {
-                const href = link.href || '';
-                // Ищем ссылки формата /video-123_456
-                const match = href.match(/video(-?\d+)_(\d+)/);
+                let title = v.title || 'VK Clip 🔥';
+                // На всякий случай чистим названия, состоящие только из времени
+                if (/^\d+:\d+$/.test(title.trim())) title = 'VK Clip 🔥';
+
+                const postUrl = `https://vkvideo.ru/video${v.owner_id}_${v.id}`;
+                const playerUrl = `https://vk.com/video_ext.php?oid=${v.owner_id}&id=${v.id}&hd=2&autoplay=1`;
                 
-                if (match) {
-                    const oid = match[1];
-                    const vid = match[2];
-                    
-                    // Собираем название: из aria-label (лучший вариант) или title
-                    let title = link.getAttribute('aria-label') || link.title || "";
-                    
-                    // Если название - это просто время (типа 3:05), сбрасываем его
-                    if (/^\d+:\d+$/.test(title.trim())) title = "";
+                // Форматируем просмотры (например: 1.5M, 12.3K)
+                let views = v.views || 0;
+                let viewsStr = views.toString();
+                if (views >= 1000000) viewsStr = (views / 1000000).toFixed(1) + 'M';
+                else if (views >= 1000) viewsStr = (views / 1000).toFixed(1) + 'K';
 
-                    // Если всё еще пусто, ищем текст внутри
-                    if (!title) {
-                        title = link.innerText.split('\n')[0];
-                    }
-
-                    // Поиск картинки (img или фон)
-                    let img = "";
-                    const imgTag = link.querySelector('img');
-                    if (imgTag && imgTag.src && !imgTag.src.includes('data:')) {
-                        img = imgTag.src;
-                    } else {
-                        const style = window.getComputedStyle(link);
-                        if (style.backgroundImage.includes('url')) {
-                            const m = style.backgroundImage.match(/url\(["']?([^"']+)["']?\)/);
-                            if (m) img = m[1];
-                        }
-                    }
-
-                    results.push({
-                        title: (title || "VK Clip 🔥").trim().substring(0, 80),
-                        url: href,
-                        playerUrl: `https://vk.com/video_ext.php?oid=${oid}&id=${vid}&hd=2&autoplay=1`,
-                        image: img
-                    });
+                // Достаем картинку самого высокого разрешения
+                let image = 'https://vk.com/images/video_empty.png';
+                if (v.image && v.image.length > 0) {
+                    image = v.image[v.image.length - 1].url; 
                 }
-            });
-            return results;
-        });
 
-        // Оставляем только уникальные по ссылке на плеер
-        const uniqueVK = Array.from(new Map(clips.map(c => [c.playerUrl, c])).values());
-        
-        // Подставляем заглушку для пустых картинок
-        const finalVK = uniqueVK.map(c => ({
-            ...c,
-            image: c.image || 'https://vk.com/images/video_empty.png'
-        }));
+                vkClips.push({
+                    title: title,
+                    url: postUrl,
+                    playerUrl: playerUrl,
+                    image: image,
+                    views: viewsStr,
+                    timestamp: new Date(v.date * 1000).toISOString()
+                });
+            }
+        }
 
-        fs.writeFileSync('vk_clips.json', JSON.stringify(finalVK.slice(0, 80), null, 4));
-        console.log(`VK: Successfully saved ${finalVK.length} clips.`);
-        
-    } catch (e) { 
-        console.error('VK Error:', e.message); 
-    } finally { 
-        if (browser) await browser.close(); 
+        fs.writeFileSync('vk_clips.json', JSON.stringify(vkClips, null, 4));
+        console.log(`VK: Successfully saved ${vkClips.length} clips with perfect data!`);
+
+    } catch (e) {
+        console.error('VK API Error:', e.message);
+        fs.writeFileSync('vk_clips.json', JSON.stringify([]));
     }
 }
 
