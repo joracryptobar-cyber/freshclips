@@ -4,322 +4,109 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Свежие Клипы | Telegram и ВКонтакте</title>
-    <meta name="description" content="Смотрите самые свежие и популярные музыкальные клипы. Обновляется автоматически!">
-    <meta property="og:title" content="Свежие Клипы 🔥 | Наш Каталог">
-    <meta property="og:image" content="https://sun9-3.userapi.com/impf/DiuXQCGE1N_Wty_HCbV8CoCBdQ3L07UdtuVRwA/thJWeQCYs8I.jpg?size=1920x768&quality=95&crop=26,0,1697,678&sign=d9c1b7989607c18bc3cb14a7521395d3&type=cover_group">
-    <meta name="theme-color" content="#8cc63f">
-    <link rel="preconnect" href="https://t.me">
-
     <style>
-        :root { 
-            --bg-color: #0a0a0c; --card-bg: #222226; --text-main: #ffffff; 
-            --text-muted: #93939a; --btn-green: #8cc63f; --btn-green-hover: #7ab32f; --accent: #8cc63f;         
-        }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 0; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg-color); }
-        ::-webkit-scrollbar-thumb { background: #3a3a40; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--btn-green); }
-
-        .main-wrapper { max-width: 1200px; margin: 20px auto; padding: 0 15px; min-height: 100vh; display: flex; flex-direction: column; }
-
-        .profile-header { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.5); margin-bottom: 20px; border: 2px solid var(--accent); }
-        .cover-image { width: 100%; height: 320px; background-image: url('https://sun9-3.userapi.com/impf/DiuXQCGE1N_Wty_HCbV8CoCBdQ3L07UdtuVRwA/thJWeQCYs8I.jpg?size=1920x768&quality=95&crop=26,0,1697,678&sign=d9c1b7989607c18bc3cb14a7521395d3&type=cover_group'); background-size: cover; background-position: center 100%; }
-        .profile-info { padding: 15px 30px 25px; display: flex; align-items: center; flex-wrap: wrap; gap: 20px; position: relative; }
-        .avatar-container { margin-top: -65px; position: relative; }
-        .avatar { width: 130px; height: 130px; border-radius: 50%; border: 4px solid var(--card-bg); background-color: #fff; object-fit: cover; }
-        .profile-details { flex-grow: 1; margin-top: 5px; }
-        .profile-details h1 { margin: 0; font-size: 26px; font-weight: 600; letter-spacing: 0.5px; }
-        .profile-details p { margin: 5px 0 0 0; color: var(--text-muted); font-size: 14px; display: flex; align-items: center; gap: 5px; }
-        .profile-actions { display: flex; gap: 12px; margin-top: 10px; }
-        .btn { padding: 10px 24px; border-radius: 25px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.2s; color: #111; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-icon { width: 21px; height: 21px; flex-shrink: 0; }
-        .btn-primary, .btn-secondary { background-color: var(--btn-green); }
-        .btn-primary:hover, .btn-secondary:hover { background-color: var(--btn-green-hover); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(140, 198, 63, 0.3); }
-
-        .tabs-container { display: flex; gap: 10px; margin-bottom: 20px; background: var(--card-bg); padding: 8px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.05); }
-        .tab-btn { flex: 1; padding: 12px 20px; border-radius: 25px; border: none; background: transparent; color: var(--text-muted); font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; white-space: nowrap; }
-        .tab-btn:hover { color: #fff; }
-        .tab-btn.active { background: var(--accent); color: #111; box-shadow: 0 4px 10px rgba(140, 198, 63, 0.2); }
-        .tab-icon { width: 18px; height: 18px; flex-shrink: 0; }
-
-        .sticky-control-panel { 
-            position: sticky; top: 0; z-index: 100; 
-            background: rgba(10, 10, 12, 0.9); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); 
-            padding: 15px 0 10px 0; margin-bottom: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
-        }
-        
-        .search-sort-row { display: flex; gap: 12px; margin-bottom: 15px; align-items: center; }
-        .search-wrapper { position: relative; flex-grow: 1; display: flex; align-items: center; }
-        #search-input { width: 100%; padding: 14px 45px 14px 20px; border-radius: 25px; background-color: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-main); font-size: 15px; box-sizing: border-box; outline: none; transition: all 0.3s; font-family: inherit; line-height: normal; }
-        #search-input:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(140, 198, 63, 0.2); }
-        #clear-search { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); display: none; font-size: 18px; width: 24px; height: 24px; text-align: center; line-height: 24px; border-radius: 50%; }
-        #clear-search:hover { color: #fff; background: rgba(255,255,255,0.1); }
-        
-        .sort-select { padding: 14px 40px 14px 20px; border-radius: 25px; background-color: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.1); color: var(--text-main); outline: none; cursor: pointer; font-family: inherit; font-size: 15px; min-width: 240px; box-sizing: border-box; transition: all 0.3s ease; appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2393939a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 18px center; line-height: normal; }
-        .sort-select:focus { border-color: var(--accent); box-shadow: 0 0 10px rgba(140, 198, 63, 0.2); }
-        
-        .filters-scroll-area { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
-        .filters-scroll-area::-webkit-scrollbar { display: none; }
-        .filter-chip { padding: 8px 18px; border-radius: 20px; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.05); color: var(--text-muted); font-size: 13px; cursor: pointer; white-space: nowrap; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
-        .filter-chip.active { background: var(--accent); color: #111; border-color: var(--accent); font-weight: 600; }
-        #fav-filter-btn.active { background-color: #ff4757; color: #fff; border-color: #ff4757; }
-
-        .section-title { font-size: 20px; margin-bottom: 15px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        :root { --bg-color: #0a0a0c; --card-bg: #222226; --text-main: #ffffff; --text-muted: #93939a; --btn-green: #8cc63f; --accent: #8cc63f; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg-color); color: var(--text-main); margin: 0; }
+        .main-wrapper { max-width: 1200px; margin: 20px auto; padding: 0 15px; display: flex; flex-direction: column; min-height: 100vh; }
+        .profile-header { background: var(--card-bg); border-radius: 12px; margin-bottom: 20px; border: 2px solid var(--accent); overflow: hidden; }
+        .cover-image { width: 100%; height: 320px; background-image: url('https://sun9-3.userapi.com/impf/DiuXQCGE1N_Wty_HCbV8CoCBdQ3L07UdtuVRwA/thJWeQCYs8I.jpg?size=1920x768&quality=95&crop=26,0,1697,678&sign=d9c1b7989607c18bc3cb14a7521395d3&type=cover_group'); background-size: cover; background-position: center top; }
+        .tabs-container { display: flex; gap: 10px; margin-bottom: 20px; background: var(--card-bg); padding: 8px; border-radius: 30px; }
+        .tab-btn { flex: 1; padding: 12px; border-radius: 25px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; font-weight: 600; }
+        .tab-btn.active { background: var(--accent); color: #111; }
+        .sticky-control-panel { position: sticky; top: 0; z-index: 100; background: rgba(10,10,12,0.9); backdrop-filter: blur(10px); padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .search-sort-row { display: flex; gap: 12px; margin-bottom: 15px; }
+        #search-input { flex-grow: 1; padding: 14px 20px; border-radius: 25px; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); color: #fff; }
+        .sort-select { padding: 14px 20px; border-radius: 25px; background: var(--card-bg); color: #fff; border: 1px solid rgba(255,255,255,0.1); }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .clip-card { background: var(--card-bg); border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
+        .clip-preview { aspect-ratio: 16/9; position: relative; }
+        .lazy-image { width: 100%; height: 100%; object-fit: cover; }
+        .clip-info { padding: 12px 15px; }
+        .meta-info { display: flex; justify-content: space-between; font-size: 11px; color: #66666e; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-overlay.show { display: flex; }
+        .modal-content { width: 90%; max-width: 900px; aspect-ratio: 16/9; }
+        .modal-iframe { width: 100%; height: 100%; border: none; }
         
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        .clip-card { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid rgba(255, 255, 255, 0.05); animation: fadeInUp 0.5s ease backwards; display: flex; flex-direction: column; position: relative; cursor: pointer; }
-        .clip-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.4); border-color: rgba(140, 198, 63, 0.3); }
+        /* DROPDOWN MENU STYLES */
+        .filters-scroll-area { display: flex; gap: 8px; padding-bottom: 5px; overflow: visible; }
+        .filter-chip { padding: 8px 18px; border-radius: 20px; background: var(--card-bg); font-size: 13px; cursor: pointer; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.05); }
+        .filter-chip.active { background: var(--accent); color: #111; font-weight: 600; border-color: var(--accent); }
         
-        .clip-preview { width: 100%; aspect-ratio: 16 / 9; background-color: #1a1a1f; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        .lazy-image { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 0; }
-        .new-badge { position: absolute; top: 10px; left: 10px; background-color: #ff4757; color: #fff; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-        
-        .card-actions { position: absolute; top: 10px; right: 10px; display: flex; gap: 8px; z-index: 6; }
-        .action-icon-btn { width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); border: 1px solid rgba(255,255,255,0.1); color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; }
-        .action-icon-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.1); }
-        .action-icon-btn.liked { color: #ff4757; background: rgba(0,0,0,0.8); border-color: #ff4757; }
-        .action-icon-btn svg { width: 16px; height: 16px; pointer-events: none; }
+        .month-dropdown-container { position: relative; display: inline-block; }
+        .dropdown-menu { position: absolute; top: 100%; left: 0; margin-top: 8px; background: #1a1a1f; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; z-index: 200; display: none; flex-direction: column; min-width: 180px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); max-height: 300px; overflow-y: auto; padding: 8px 0; }
+        .dropdown-menu.show { display: flex; }
+        .dropdown-item { padding: 10px 20px; color: var(--text-muted); cursor: pointer; font-size: 14px; transition: background 0.2s; white-space: nowrap; }
+        .dropdown-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .dropdown-item.active { color: var(--accent); font-weight: 600; background: rgba(140, 198, 63, 0.1); }
 
-        .play-btn { width: 50px; height: 50px; background: rgba(0, 0, 0, 0.6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white; backdrop-filter: blur(4px); transition: all 0.2s; border: 2px solid transparent; z-index: 4; }
-        .clip-card:hover .play-btn { background: var(--accent); transform: scale(1.1); border-color: #fff; }
-        
-        .clip-info { padding: 12px 15px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; gap: 10px; z-index: 1; }
-        .clip-info h3 { margin: 0; font-size: 14px; font-weight: 500; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; color: #e1e1e3; }
-        .meta-info { display: flex; justify-content: space-between; align-items: center; width: 100%; font-size: 11px; color: #66666e; }
-        .meta-item { display: flex; align-items: center; gap: 4px; }
-        
-        .no-results { text-align: center; padding: 50px; color: var(--text-muted); grid-column: 1 / -1; width: 100%; }
-        .loader-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px 0; gap: 15px; color: var(--text-muted); width: 100%; }
-        .infinite-scroll-sentinel { width: 100%; height: 50px; display: flex; align-items: center; justify-content: center; padding: 20px 0; color: var(--text-muted); }
-        .spinner { width: 30px; height: 30px; border: 3px solid rgba(140, 198, 63, 0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 9999; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; padding: 15px; box-sizing: border-box; }
-        .modal-overlay.show { display: flex; opacity: 1; }
-        .modal-content { width: 100%; max-width: 900px; aspect-ratio: 16 / 9; background: #000; border-radius: 16px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
-        .modal-close { position: absolute; top: -45px; right: 0; color: #fff; font-size: 36px; line-height: 1; cursor: pointer; transition: color 0.2s; }
-        .modal-close:hover { color: var(--accent); }
-        .modal-iframe { width: 100%; height: 100%; border: none; border-radius: 16px; }
-
-        .site-footer { text-align: center; padding: 30px 15px; margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.05); color: var(--text-muted); font-size: 13px; }
-        #back-to-top { position: fixed; bottom: 30px; right: 30px; width: 50px; height: 50px; background-color: var(--card-bg); color: var(--btn-green); border: 2px solid var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.5); opacity: 0; pointer-events: none; transition: all 0.3s; transform: translateY(20px); }
-        #back-to-top.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
-        
         @media (max-width: 768px) {
-            .cover-image { height: 120px; background-position: center center; background-image: url('mobile_cover.png'); }
+            .cover-image { height: 160px; background-position: center center; background-image: url('https://sun9-3.userapi.com/impf/DiuXQCGE1N_Wty_HCbV8CoCBdQ3L07UdtuVRwA/thJWeQCYs8I.jpg?size=1920x768&quality=95&crop=26,0,1697,678&sign=d9c1b7989607c18bc3cb14a7521395d3&type=cover_group'); }
             .profile-info { display: grid; grid-template-columns: 1fr auto; grid-template-areas: "avatar ." "details actions"; align-items: end; padding: 10px 15px 15px; gap: 5px 15px; }
-            .avatar-container { grid-area: avatar; margin-top: -45px; } .avatar { width: 75px; height: 75px; border-width: 3px; } 
-            .profile-details { grid-area: details; margin-top: 0; padding-bottom: 2px; } .profile-details h1 { font-size: 21px; } .profile-details p { font-size: 12px; margin-top: 2px; }
+            .avatar-container { grid-area: avatar; margin-top: -45px; } 
+            .avatar { width: 75px; height: 75px; border-width: 3px; } 
+            .profile-details { grid-area: details; margin-top: 0; padding-bottom: 2px; } 
+            .profile-details h1 { font-size: 21px; } 
+            .profile-details p { font-size: 12px; margin-top: 2px; }
             .profile-actions { grid-area: actions; flex-direction: column; width: 145px; gap: 8px; margin-top: 0; justify-self: end; margin-right: 10%; }
-            .btn { width: 100%; padding: 8px 10px; font-size: 11px; gap: 6px; } .btn-icon { width: 18px; height: 18px; }
+            .btn { width: 100%; padding: 8px 10px; font-size: 11px; gap: 6px; } 
             .search-sort-row { flex-direction: column; gap: 12px; align-items: stretch; }
-            .search-wrapper { width: 100%; } .sort-select { width: 100%; min-width: 100%; padding: 14px 20px; } 
-            .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } .clip-info { padding: 8px 10px; gap: 8px; } .clip-info h3 { font-size: 12px; }
-            .play-btn { width: 36px; height: 36px; font-size: 14px; } .action-icon-btn { width: 28px; height: 28px; } .action-icon-btn svg { width: 14px; height: 14px; }
-            .new-badge { font-size: 9px; padding: 3px 6px; top: 6px; left: 6px; } 
-            .meta-info { font-size: 10px; flex-direction: column; align-items: flex-start; gap: 3px; } 
-            .tabs-container { padding: 5px; border-radius: 20px; } .tab-btn { padding: 10px 15px; font-size: 13px; border-radius: 15px;}
-            .modal-content { border-radius: 8px; } .modal-iframe { border-radius: 8px; } .modal-close { top: -35px; right: 0; font-size: 30px; }
-            #back-to-top { bottom: 20px; right: 20px; width: 45px; height: 45px; }
+            .search-wrapper { width: 100%; } 
+            .sort-select { width: 100%; min-width: 100%; padding: 14px 20px; } 
+            .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } 
         }
     </style>
 </head>
 <body>
-
     <div class="main-wrapper">
-        
-        <div class="profile-header">
-            <div class="cover-image"></div>
-            <div class="profile-info">
-                <div class="avatar-container">
-                    <img src="https://sun23-2.userapi.com/s/v1/ig1/gtuT6ql_Nf9himHpi7tbG0_GbtHlDBzh9WKOg06R07X-1PiFxFI3iRRDn79LnBuwl9uu9Kme.jpg?quality=96&crop=10,0,389,389&as=32x32,48x48,72x72,108x108,160x160,240x240,360x360&ava=1&u=0V8f65eTfV6c6u5lnff4KaBA7t7Dl8e-D_O4z3HU3EUg&cs=100x100" alt="Аватарка" class="avatar">
-                </div>
-                <div class="profile-details">
-                    <h1>Свежие Клипы</h1>
-                    <p>✓ Смотри новинки первым</p>
-                </div>
-                <div class="profile-actions">
-                    <a href="https://t.me/fresh_clips" target="_blank" class="btn btn-primary">
-                        <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.94z"/></svg>
-                        <span>Наш телеграм канал</span>
-                    </a>
-                    <a href="https://vk.com/fresh_clips" target="_blank" class="btn btn-secondary">
-                        <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.5 16.5h-1.4c-.5 0-.7-.4-1.7-1.4-1.1-1.1-1.5-1.2-1.7-1.2-.3 0-.4.1-.4.6v1.4c0 .4-.1.5-1.1.5-1.6 0-3.3-1-4.6-2.7-1.8-2.6-2.3-4.7-2.3-5.1 0-.2.1-.3.4-.3h1.4c.4 0 .5.2.6.5 1 2.5 2.4 4.2 2.8 4.2.2 0 .3-.1.3-.6v-2.8c-.05-.7-.3-1-1-1.1-.2-.03-.1-.3.1-.4.3-.2.8-.2 1.3-.2.7 0 .9.04 1.1.1.3.1.3.4.3 1.2v1.5c0 .3.1.4.2.4.2 0 .4-.1.9-.6 1-1 1.7-2.8 1.7-2.8.1-.2.2-.3.5-.3h1.4c.4 0 .5.2.4.4-.2.7-1.4 2.5-1.9 3-.3.4-.4.5 0 1 1 1.2 1.8 2.3 2.1 2.8.1.2 0 .5-.4.5z"/></svg>
-                        <span>Мы в VK</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-
+        <div class="profile-header"><div class="cover-image"></div><div style="padding: 20px;"><h1>Свежие Клипы</h1></div></div>
         <div class="tabs-container">
-            <button class="tab-btn active" id="tab-tg" onclick="switchTab('tg')">
-                <svg class="tab-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.94z"/></svg>
-                Клипы Telegram
-            </button>
-            <button class="tab-btn" id="tab-vk" onclick="switchTab('vk')">
-                <svg class="tab-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm4.5 16.5h-1.4c-.5 0-.7-.4-1.7-1.4-1.1-1.1-1.5-1.2-1.7-1.2-.3 0-.4.1-.4.6v1.4c0 .4-.1.5-1.1.5-1.6 0-3.3-1-4.6-2.7-1.8-2.6-2.3-4.7-2.3-5.1 0-.2.1-.3.4-.3h1.4c.4 0 .5.2.6.5 1 2.5 2.4 4.2 2.8 4.2.2 0 .3-.1.3-.6v-2.8c-.05-.7-.3-1-1-1.1-.2-.03-.1-.3.1-.4.3-.2.8-.2 1.3-.2.7 0 .9.04 1.1.1.3.1.3.4.3 1.2v1.5c0 .3.1.4.2.4.2 0 .4-.1.9-.6 1-1 1.7-2.8 1.7-2.8.1-.2.2-.3.5-.3h1.4c.4 0 .5.2.4.4-.2.7-1.4 2.5-1.9 3-.3.4-.4.5 0 1 1 1.2 1.8 2.3 2.1 2.8.1.2 0 .5-.4.5z"/></svg>
-                VK Видео
-            </button>
+            <button class="tab-btn active" id="tab-tg" onclick="switchTab('tg')">Клипы Telegram</button>
+            <button class="tab-btn" id="tab-vk" onclick="switchTab('vk')">VK Видео</button>
         </div>
-
         <div class="sticky-control-panel">
             <div class="search-sort-row">
-                <div class="search-wrapper">
-                    <input type="text" id="search-input" placeholder="🔍 Поиск по названию клипа...">
-                    <span id="clear-search" onclick="clearSearch()">✕</span>
-                </div>
+                <input type="text" id="search-input" placeholder="Поиск по названию..." oninput="applyFilters()">
                 <select id="sort-select" class="sort-select" onchange="applyFilters()">
                     <option value="newest">⏱ Сначала новые</option>
-                    <option value="popular">🔥 Самые просматриваемые</option>
-                    <option value="oldest">⏳ Сначала старые</option>
-                    <option value="az">🔤 По алфавиту (А-Я)</option>
+                    <option value="popular">🔥 Популярные</option>
                 </select>
             </div>
             <div class="filters-scroll-area" id="month-filters"></div>
         </div>
-
-        <h2 class="section-title">
-            <span id="section-header-text">Все клипы</span>
-            <span id="results-count" style="font-size: 14px; font-weight: normal; color: var(--text-muted);"></span>
-        </h2>
-        
-        <div id="main-loader-wrapper" style="width: 100%; display: flex; justify-content: center;">
-            <div class="loader-container" id="loader">
-                <div class="spinner"></div>
-                <div id="loader-text">Загрузка базы клипов...</div>
-            </div>
-        </div>
-
-        <div class="grid" id="clips-grid">
-            </div>
-
-        <div id="scroll-sentinel" class="infinite-scroll-sentinel" style="display: none;">
-            <div class="spinner" id="main-spinner"></div>
-            <span id="scroll-text" style="margin-left: 15px;">Подгрузка клипов...</span>
-        </div>
-
-        <footer class="site-footer">
-            © 2026 Свежие Клипы. Контент обновляется автоматически.<br>
-            <span style="font-size: 11px; opacity: 0.5;">Powered by Telegram, VK & GitHub</span>
-        </footer>
-
+        <div class="grid" id="clips-grid"></div>
+        <div id="scroll-sentinel" style="height: 50px;"></div>
     </div>
 
     <div id="video-modal" class="modal-overlay" onclick="closePlayer(event)">
-        <div class="modal-content">
-            <span class="modal-close" onclick="closePlayer(event)">&times;</span>
-            <iframe id="modal-iframe" class="modal-iframe" src="" allow="autoplay; fullscreen; encrypted-media; picture-in-picture" allowfullscreen></iframe>
-        </div>
-    </div>
-
-    <div id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M13 19v-9.586l4.293 4.293 1.414-1.414L12 5.586l-6.707 6.707 1.414 1.414L11 9.586V19h2z"/></svg>
+        <div class="modal-content"><iframe id="modal-iframe" class="modal-iframe" src="" allowfullscreen></iframe></div>
     </div>
 
     <script>
-        let tgData = [];       
-        let vkData = [];
-        let currentActiveData = []; 
-        let filteredClipsData = [];  
-        
-        let currentDisplayed = 0;    
-        const CLIPS_PER_PAGE = 12;   
-        
-        let activeTab = 'tg'; 
-        let activeMonth = null;
-        let showFavoritesOnly = false;
-        let savedFavorites = JSON.parse(localStorage.getItem('freshClipsFavorites')) || [];
-        
+        let tgData = [], vkData = [], currentActiveData = [], filteredClipsData = [];
+        let currentDisplayed = 0, activeTab = 'tg', activeMonth = null;
+        const CLIPS_PER_PAGE = 12;
         const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
 
-        const observer = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting) { renderNextClips(); }
-        }, { rootMargin: "200px" });
+        const observer = new IntersectionObserver((entries) => { if (entries[0].isIntersecting) renderNextClips(); }, { rootMargin: "200px" });
 
         async function loadAllData() {
+            const buster = Date.now();
             try {
-                const cacheBuster = Date.now(); 
-                
-                try {
-                    const resTg = await fetch('clips.json?v=' + cacheBuster);
-                    if(resTg.ok) tgData = await resTg.json();
-                } catch(e) { console.error('TG error', e); }
-
-                try {
-                    const resVk = await fetch('vk_clips.json?v=' + cacheBuster);
-                    if(resVk.ok) vkData = await resVk.json();
-                } catch(e) { console.error('VK error', e); }
-                
-                document.getElementById('main-loader-wrapper').style.display = 'none';
-                
-                switchTab('tg'); 
+                const rTg = await fetch('clips.json?v=' + buster); if(rTg.ok) tgData = await rTg.json();
+                const rVk = await fetch('vk_clips.json?v=' + buster); if(rVk.ok) vkData = await rVk.json();
+                switchTab('tg');
                 observer.observe(document.getElementById('scroll-sentinel'));
-                
-            } catch (error) {
-                const loaderText = document.getElementById('loader-text');
-                if (loaderText) loaderText.innerHTML = 'Ошибка загрузки данных.';
-                const spinner = document.querySelector('#loader .spinner');
-                if (spinner) spinner.style.display = 'none';
-            }
+            } catch (e) { console.error(e); }
         }
 
         function switchTab(tabId) {
             activeTab = tabId;
-            document.getElementById('tab-tg').classList.remove('active');
-            document.getElementById('tab-vk').classList.remove('active');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(`tab-${tabId}`).classList.add('active');
-            
             currentActiveData = (tabId === 'tg') ? tgData : vkData;
-            
-            activeMonth = null;
-            showFavoritesOnly = false;
-            document.getElementById('search-input').value = '';
-            document.getElementById('clear-search').style.display = 'none';
-            document.getElementById('sort-select').value = 'newest';
-            
-            document.getElementById('section-header-text').innerText = (tabId === 'tg') ? 'Клипы из Telegram' : 'Клипы из VK';
-            
-            if (currentActiveData.length === 0) {
-                document.getElementById('clips-grid').innerHTML = '<div class="no-results" style="font-size: 16px;">Пока нет клипов 😔<br><span style="font-size:12px;opacity:0.5;display:block;margin-top:8px;">Запустите скрипт обновления на GitHub</span></div>';
-                document.getElementById('scroll-sentinel').style.display = 'none';
-                document.getElementById('month-filters').innerHTML = '';
-                document.getElementById('results-count').innerText = '0 видео';
-                return;
-            }
-
             buildFiltersUi();
             applyFilters();
-        }
-
-        function openPlayer(iframeUrl) {
-            const modal = document.getElementById('video-modal');
-            const iframe = document.getElementById('modal-iframe');
-            if(iframeUrl.includes('t.me') && !iframeUrl.includes('embed')) {
-                iframeUrl = iframeUrl + '?embed=1&autoplay=1';
-            }
-            iframe.src = iframeUrl;
-            modal.classList.add('show');
-            document.body.style.overflow = 'hidden'; 
-        }
-
-        function closePlayer(event) {
-            if (event.target.id === 'video-modal' || event.target.classList.contains('modal-close')) {
-                document.getElementById('video-modal').classList.remove('show');
-                document.getElementById('modal-iframe').src = ''; 
-                document.body.style.overflow = ''; 
-            }
-        }
-
-        function parseViews(viewStr) {
-            if (!viewStr) return 0;
-            let str = viewStr.toString().toUpperCase().replace(',', '.').trim();
-            let num = parseFloat(str);
-            if (isNaN(num)) return 0;
-            if (str.includes('K')) return num * 1000;
-            if (str.includes('M')) return num * 1000000;
-            return num;
         }
 
         function buildFiltersUi() {
@@ -327,202 +114,123 @@
             currentActiveData.forEach(clip => {
                 if (clip.timestamp) {
                     const d = new Date(clip.timestamp);
-                    // Проверяем, является ли timestamp валидной датой (для TG)
                     if (!isNaN(d.getTime())) {
-                        const monthIndexStr = String(d.getMonth()).padStart(2, '0');
-                        const monthStr = `${d.getFullYear()}-${monthIndexStr}`;
-                        monthSet.add(monthStr);
+                        const mStr = `${d.getFullYear()}-${String(d.getMonth()).padStart(2, '0')}`;
+                        monthSet.add(mStr);
                     }
                 }
             });
-
-            const monthContainer = document.getElementById('month-filters');
-            monthContainer.innerHTML = `
-                <div class="filter-chip" id="fav-filter-btn" onclick="toggleFavoritesFilter()">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                    Мои сохраненные
-                </div>
-                <div class="filter-chip active" id="month-all" onclick="setMonthFilter(null)">📅 Все месяцы</div>
+            const container = document.getElementById('month-filters');
+            
+            let html = `
+            <div class="month-dropdown-container">
+                <div class="filter-chip active" id="dropdown-toggle-btn" onclick="toggleDropdown(event)">📅 Все месяцы ▾</div>
+                <div class="dropdown-menu" id="dropdown-menu-list">
+                    <div class="dropdown-item active" id="m-all" onclick="setMonthFilter(null, '📅 Все месяцы')">📅 Все месяцы</div>
             `;
             
             Array.from(monthSet).sort().reverse().forEach(m => {
-                const [year, monthIndex] = m.split('-');
-                const label = `${monthNames[parseInt(monthIndex, 10)]} ${year}`;
-                monthContainer.innerHTML += `<div class="filter-chip" id="month-${m}" onclick="setMonthFilter('${m}')">${label}</div>`;
+                const [y, mi] = m.split('-');
+                const label = `${monthNames[parseInt(mi)]} ${y}`;
+                html += `<div class="dropdown-item" id="m-${m}" onclick="setMonthFilter('${m}', '${label}')">${label}</div>`;
             });
+            
+            html += `</div></div>`;
+            container.innerHTML = html;
         }
 
-        function toggleFavorite(event, url) {
-            event.preventDefault(); event.stopPropagation();
-            const btn = event.currentTarget;
-            const index = savedFavorites.indexOf(url);
-            if (index > -1) { savedFavorites.splice(index, 1); btn.classList.remove('liked'); } 
-            else { savedFavorites.push(url); btn.classList.add('liked'); }
-            localStorage.setItem('freshClipsFavorites', JSON.stringify(savedFavorites));
-            if (showFavoritesOnly) applyFilters(); 
+        function toggleDropdown(e) {
+            e.stopPropagation();
+            document.getElementById('dropdown-menu-list').classList.toggle('show');
         }
 
-        function toggleFavoritesFilter() {
-            showFavoritesOnly = !showFavoritesOnly;
-            const favBtn = document.getElementById('fav-filter-btn');
-            document.querySelectorAll('#month-filters .filter-chip:not(#fav-filter-btn)').forEach(el => el.classList.remove('active'));
-            if(showFavoritesOnly) { favBtn.classList.add('active'); activeMonth = null; } 
-            else { favBtn.classList.remove('active'); activeMonth = null; document.getElementById('month-all').classList.add('active'); }
-            applyFilters();
-        }
-
-        function shareClip(event, url, title) {
-            event.preventDefault(); event.stopPropagation();
-            if (navigator.share && window.isSecureContext) {
-                navigator.share({ title: title, text: '🔥 Зацени свежий клип!\n', url: url }).catch(() => {});
-            } else {
-                if (navigator.clipboard && window.isSecureContext) {
-                    navigator.clipboard.writeText(url).then(() => alert('Ссылка скопирована!')).catch(() => prompt('Скопируйте ссылку:', url));
-                } else {
-                    let textArea = document.createElement("textarea"); textArea.value = url; textArea.style.position = "fixed"; textArea.style.opacity = 0; document.body.appendChild(textArea); textArea.focus(); textArea.select();
-                    try { document.execCommand('copy'); alert('Ссылка скопирована!'); } catch (err) { prompt('Скопируйте ссылку:', url); }
-                    document.body.removeChild(textArea);
-                }
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('dropdown-menu-list');
+            if (menu && menu.classList.contains('show') && !e.target.closest('.month-dropdown-container')) {
+                menu.classList.remove('show');
             }
+        });
+
+        function setMonthFilter(m, label) {
+            activeMonth = m;
+            document.getElementById('dropdown-toggle-btn').innerText = label + ' ▾';
+            document.getElementById('dropdown-menu-list').classList.remove('show');
+            
+            document.querySelectorAll('.dropdown-item').forEach(c => c.classList.remove('active'));
+            if(m) {
+                const el = document.getElementById(`m-${m}`);
+                if(el) el.classList.add('active');
+            } else {
+                const el = document.getElementById('m-all');
+                if(el) el.classList.add('active');
+            }
+            applyFilters();
         }
 
-        function setMonthFilter(monthStr) {
-            activeMonth = monthStr;
-            if(showFavoritesOnly) { showFavoritesOnly = false; document.getElementById('fav-filter-btn').classList.remove('active'); }
-            document.querySelectorAll('#month-filters .filter-chip:not(#fav-filter-btn)').forEach(el => el.classList.remove('active'));
-            if(monthStr) { document.getElementById(`month-${monthStr}`).classList.add('active'); } 
-            else { document.getElementById('month-all').classList.add('active'); }
-            applyFilters();
+        function parseViews(v) {
+            let n = parseFloat(v.toString().replace('K','').replace('M',''));
+            if (v.toString().includes('K')) return n * 1000;
+            if (v.toString().includes('M')) return n * 1000000;
+            return n;
         }
 
         function applyFilters() {
-            const query = document.getElementById('search-input').value.toLowerCase().trim();
-            const sortMode = document.getElementById('sort-select').value;
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const sort = document.getElementById('sort-select').value;
             
             filteredClipsData = currentActiveData.filter(clip => {
                 const matchesSearch = clip.title.toLowerCase().includes(query);
                 let matchesMonth = true;
                 if (activeMonth && clip.timestamp) {
                     const d = new Date(clip.timestamp);
-                    // Если это валидная дата, фильтруем по месяцу. Если текст (ВК), пропускаем фильтр
-                    if (!isNaN(d.getTime())) {
-                        const monthIndexStr = String(d.getMonth()).padStart(2, '0');
-                        matchesMonth = (`${d.getFullYear()}-${monthIndexStr}` === activeMonth);
-                    } else {
-                        matchesMonth = true; 
-                    }
+                    matchesMonth = (`${d.getFullYear()}-${String(d.getMonth()).padStart(2, '0')}` === activeMonth);
                 }
-                let matchesFav = true;
-                if (showFavoritesOnly) { matchesFav = savedFavorites.includes(clip.url); }
-                return matchesSearch && matchesMonth && matchesFav;
+                return matchesSearch && matchesMonth;
             });
 
-            if (sortMode === 'oldest') { filteredClipsData.reverse(); } 
-            else if (sortMode === 'az') { filteredClipsData.sort((a, b) => a.title.localeCompare(b.title)); } 
-            else if (sortMode === 'popular') { filteredClipsData.sort((a, b) => parseViews(b.views) - parseViews(a.views)); }
-
-            const headerText = document.getElementById('section-header-text');
-            if (showFavoritesOnly) { headerText.innerText = 'Мои сохраненные'; }
-            else if (query) { headerText.innerText = 'Результаты поиска'; }
-            else { headerText.innerText = activeTab === 'tg' ? 'Клипы из Telegram' : 'Клипы из VK'; }
+            if (sort === 'popular') filteredClipsData.sort((a,b) => parseViews(b.views) - parseViews(a.views));
+            else filteredClipsData.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
 
             document.getElementById('clips-grid').innerHTML = '';
             currentDisplayed = 0;
-            
-            if (filteredClipsData.length === 0) {
-                document.getElementById('scroll-sentinel').style.display = 'none';
-                document.getElementById('clips-grid').innerHTML = '<div class="no-results">В этом разделе пока ничего нет 😔</div>';
-                document.getElementById('results-count').innerText = '0 видео';
-            } else {
-                document.getElementById('scroll-sentinel').style.display = 'flex';
-                renderNextClips();
-            }
+            renderNextClips();
         }
 
         function renderNextClips() {
-            if (currentDisplayed >= filteredClipsData.length) return; 
-            
             const grid = document.getElementById('clips-grid');
-            const nextBatch = filteredClipsData.slice(currentDisplayed, currentDisplayed + CLIPS_PER_PAGE);
-            document.getElementById('results-count').innerText = `${filteredClipsData.length} видео`;
+            const batch = filteredClipsData.slice(currentDisplayed, currentDisplayed + CLIPS_PER_PAGE);
             
-            nextBatch.forEach((clip, index) => {
+            batch.forEach(clip => {
                 const card = document.createElement('div');
                 card.className = 'clip-card';
-                card.style.animationDelay = `${index * 0.05}s`; 
-                
-                card.onclick = () => openPlayer(clip.playerUrl || clip.url);
+                card.onclick = () => {
+                    const modal = document.getElementById('video-modal');
+                    document.getElementById('modal-iframe').src = clip.playerUrl || clip.url;
+                    modal.classList.add('show');
+                };
 
-                const isFav = savedFavorites.includes(clip.url);
-                const originalIndex = currentActiveData.indexOf(clip);
-                const isDefaultView = !activeMonth && !showFavoritesOnly && document.getElementById('search-input').value === '' && document.getElementById('sort-select').value === 'newest';
-                const badgeHtml = (isDefaultView && originalIndex >= 0 && originalIndex < 3) ? '<div class="new-badge">NEW 🔥</div>' : '';
-
-                let viewsHtml = clip.views ? `<div class="meta-item"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg> ${clip.views}</div>` : '';
-                
-                let dateHtml = '';
-                if (clip.timestamp) {
+                let dateDisplay = clip.dateText || "";
+                if (!dateDisplay && clip.timestamp) {
                     const d = new Date(clip.timestamp);
-                    let displayDateText = '';
-                    
-                    // УМНАЯ ПРОВЕРКА: Если дата валидная (Telegram), форматируем. Если нет (ВК), берем текст.
-                    if (!isNaN(d.getTime())) {
-                        const day = String(d.getDate()).padStart(2, '0');
-                        const month = String(d.getMonth() + 1).padStart(2, '0');
-                        const year = String(d.getFullYear()).slice(-2); 
-                        displayDateText = `${day}.${month}.${year}`;
-                    } else {
-                        displayDateText = clip.timestamp; // "1 день назад"
-                    }
-                    
-                    dateHtml = `<div class="meta-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> ${displayDateText}</div>`;
+                    dateDisplay = isNaN(d.getTime()) ? clip.timestamp : d.toLocaleDateString('ru-RU');
                 }
 
-                const safeTitle = clip.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-
                 card.innerHTML = `
-                    <div class="clip-preview">
-                        <img src="${clip.image}" alt="${safeTitle}" class="lazy-image" loading="lazy">
-                        ${badgeHtml}
-                        <div class="card-actions">
-                            <button class="action-icon-btn ${isFav ? 'liked' : ''}" onclick="toggleFavorite(event, '${clip.url}')" title="В избранное">
-                                <svg viewBox="0 0 24 24" fill="${isFav ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
-                            </button>
-                            <button class="action-icon-btn" onclick="shareClip(event, '${clip.url}', '${safeTitle}')" title="Поделиться">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                            </button>
-                        </div>
-                        <div class="preview-link">
-                            <div class="play-btn">▶</div>
-                        </div>
-                    </div>
+                    <div class="clip-preview"><img src="${clip.image}" class="lazy-image"></div>
                     <div class="clip-info">
                         <h3>${clip.title}</h3>
                         <div class="meta-info">
-                            ${viewsHtml}
-                            ${dateHtml}
+                            <span>👁 ${clip.views}</span>
+                            <span>📅 ${dateDisplay}</span>
                         </div>
                     </div>
                 `;
                 grid.appendChild(card);
             });
-
-            currentDisplayed += nextBatch.length;
-            if (currentDisplayed >= filteredClipsData.length) { document.getElementById('scroll-sentinel').style.display = 'none'; } 
-            else { document.getElementById('scroll-sentinel').style.display = 'flex'; }
+            currentDisplayed += batch.length;
         }
 
-        document.getElementById('search-input').addEventListener('input', function() {
-            document.getElementById('clear-search').style.display = this.value.trim() ? 'block' : 'none';
-            applyFilters();
-        });
-        function clearSearch() { document.getElementById('search-input').value = ''; document.getElementById('clear-search').style.display = 'none'; applyFilters(); }
-
-        const backToTopBtn = document.getElementById('back-to-top');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 400) { backToTopBtn.classList.add('visible'); } else { backToTopBtn.classList.remove('visible'); }
-        });
-
+        function closePlayer(e) { if(e.target.id === 'video-modal') { document.getElementById('video-modal').classList.remove('show'); document.getElementById('modal-iframe').src = ''; } }
         loadAllData();
     </script>
 </body>
