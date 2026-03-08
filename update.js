@@ -68,22 +68,25 @@ async function updateTelegramClips() {
 }
 
 // ==========================================
-// 2. ДВОЙНОЙ СБОРЩИК ВКОНТАКТЕ (БЕЗ API)
+// 2. СБОРЩИК ВКОНТАКТЕ (МАСКИРОВКА ПОД GOOGLEBOT)
 // ==========================================
 async function updateVKClips() {
-    console.log('Начинаем сбор клипов с ВКонтакте (Метод 1: vkvideo.ru)...');
+    console.log('Начинаем сбор клипов ВК (Обход защиты)...');
     let vkClips = [];
     try {
-        const url = 'https://vkvideo.ru/@fresh_clips';
+        // Идем на классический домен
+        const url = 'https://vk.com/video/@fresh_clips';
+        
+        // Маскируемся под официального поискового робота Google
         const response = await fetch(url, {
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
                 'Accept-Language': 'ru-RU,ru;q=0.9'
-            }
+            },
+            redirect: 'follow'
         });
         const html = await response.text();
 
-        // Разбиваем код на блоки, чтобы достать скрытые видео
         const blocks = html.split('"videoId":');
         for (let i = 1; i < blocks.length; i++) {
             const block = blocks[i].substring(0, 1500);
@@ -100,7 +103,7 @@ async function updateVKClips() {
                 try { rawTitle = JSON.parse(`"${rawTitle}"`); } catch(e) {}
                 const title = rawTitle.length > 70 ? rawTitle.substring(0, 67) + '...' : rawTitle;
 
-                const postUrl = `https://vkvideo.ru/video${ownerId}_${vidId}`;
+                const postUrl = `https://vk.com/video${ownerId}_${vidId}`;
                 const playerUrl = `https://vk.com/video_ext.php?oid=${ownerId}&id=${vidId}&hd=2&autoplay=1`;
 
                 let image = 'https://vk.com/images/video_empty.png';
@@ -124,70 +127,20 @@ async function updateVKClips() {
             }
         }
 
-        // Если первый метод ничего не нашел (ВК изменил верстку), включаем Метод 2
-        if (vkClips.length === 0) {
-            console.log('Метод 1 не дал результатов. Пробуем Метод 2 (m.vk.com)...');
-            vkClips = await updateVKMobileFallback();
-        }
-
     } catch (e) {
-        console.error('Ошибка в Методе 1:', e);
-        vkClips = await updateVKMobileFallback();
+        console.error('Ошибка при сборе ВК:', e);
     }
 
-    // Сохраняем результат в файл
     if (vkClips && vkClips.length > 0) {
-        vkClips = vkClips.slice(0, 50); // Берем 50 самых свежих
+        vkClips = vkClips.slice(0, 50); 
         fs.writeFileSync('vk_clips.json', JSON.stringify(vkClips, null, 4));
         console.log(`VK: Успешно сохранено ${vkClips.length} клипов в vk_clips.json.`);
     } else {
-        console.log('VK: Не удалось собрать клипы. Оставляем файл пустым.');
+        console.log('VK: Не удалось обойти защиту ВК. Файл остается пустым.');
         fs.writeFileSync('vk_clips.json', JSON.stringify([]));
     }
 }
 
-// Запасной метод парсинга (на случай блокировок)
-async function updateVKMobileFallback() {
-    console.log('VK Метод 2: Загрузка мобильной версии...');
-    let fallbackClips = [];
-    try {
-        const url = 'https://m.vk.com/video/@fresh_clips';
-        const response = await fetch(url, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1',
-                'Accept-Language': 'ru-RU,ru;q=0.9'
-            }
-        });
-        const html = await response.text();
-        const $ = cheerio.load(html);
-
-        $('a[href^="/video-"]').each((i, el) => {
-            const link = $(el).attr('href');
-            if (link && link.match(/\/video(-?\d+)_(\d+)/)) {
-                const videoIdMatch = link.match(/\/video(-?\d+)_(\d+)/);
-                const ownerId = videoIdMatch[1];
-                const vidId = videoIdMatch[2];
-                
-                const postUrl = 'https://vk.com' + link.split('?')[0];
-                const playerUrl = `https://vk.com/video_ext.php?oid=${ownerId}&id=${vidId}&hd=2&autoplay=1`;
-                
-                let title = $(el).attr('aria-label') || $(el).find('.VideoItem__title').text().trim() || 'Клип ВКонтакте 🔥';
-                let image = $(el).find('.VideoItem__thumb').attr('style') || '';
-                const imgMatch = image.match(/url\(['"]?([^'")]+)['"]?\)/);
-                image = imgMatch ? imgMatch[1] : 'https://vk.com/images/video_empty.png';
-
-                let views = $(el).find('.VideoItem__views').text().replace('просмотров', '').trim() || 'ВК';
-
-                if (!fallbackClips.some(c => c.playerUrl === playerUrl)) {
-                    fallbackClips.push({ title, url: postUrl, playerUrl, image, views, timestamp: new Date().toISOString() });
-                }
-            }
-        });
-    } catch (e) { console.error('Ошибка в Методе 2:', e); }
-    return fallbackClips;
-}
-
-// Запуск обеих задач
 async function runTasks() {
     await updateTelegramClips();
     await updateVKClips();
