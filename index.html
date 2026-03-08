@@ -41,7 +41,7 @@
         </div>
         <div class="sticky-control-panel">
             <div class="search-sort-row">
-                <input type="text" id="search-input" placeholder="Поиск по названию..." oninput="applyFilters()">
+                <input type="text" id="search-input" placeholder="Поиск..." oninput="applyFilters()">
                 <select id="sort-select" class="sort-select" onchange="applyFilters()">
                     <option value="newest">⏱ Сначала новые</option>
                     <option value="popular">🔥 Популярные</option>
@@ -50,7 +50,7 @@
             <div class="filters-scroll-area" id="month-filters"></div>
         </div>
         <div class="grid" id="clips-grid"></div>
-        <div id="scroll-sentinel"></div>
+        <div id="scroll-sentinel" style="height: 50px;"></div>
     </div>
 
     <div id="video-modal" class="modal-overlay" onclick="closePlayer(event)">
@@ -111,6 +111,13 @@
             applyFilters();
         }
 
+        function parseViews(v) {
+            let n = parseFloat(v.toString().replace('K','').replace('M',''));
+            if (v.toString().includes('K')) return n * 1000;
+            if (v.toString().includes('M')) return n * 1000000;
+            return n;
+        }
+
         function applyFilters() {
             const query = document.getElementById('search-input').value.toLowerCase();
             const sort = document.getElementById('sort-select').value;
@@ -125,7 +132,7 @@
                 return matchesSearch && matchesMonth;
             });
 
-            if (sort === 'popular') filteredClipsData.sort((a,b) => parseFloat(b.views.replace('K','000')) - parseFloat(a.views.replace('K','000')));
+            if (sort === 'popular') filteredClipsData.sort((a,b) => parseViews(b.views) - parseViews(a.views));
             else filteredClipsData.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
 
             document.getElementById('clips-grid').innerHTML = '';
@@ -146,6 +153,7 @@
                     modal.classList.add('show');
                 };
 
+                // SMART DISPLAY: Show dateText if exists, otherwise formatted date
                 let dateDisplay = clip.dateText || "";
                 if (!dateDisplay && clip.timestamp) {
                     const d = new Date(clip.timestamp);
