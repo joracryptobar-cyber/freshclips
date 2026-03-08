@@ -37,7 +37,7 @@ async function updateTelegramClips() {
     } catch (e) { console.error('TG Error:', e); }
 }
 
-// 2. VK SCRAPER (PUPPETEER)
+// 2. VK SCRAPER (Ультимативная версия с глубоким поиском картинок)
 async function updateVKClips() {
     console.log('Starting VK extraction...');
     let browser;
@@ -47,75 +47,96 @@ async function updateVKClips() {
             args: ['--no-sandbox', '--disable-setuid-sandbox'] 
         });
         const page = await browser.newPage();
-        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36');
+        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36');
         
-        // Устанавливаем большой размер окна, чтобы видеть больше карточек сразу
-        await page.setViewport({ width: 1280, height: 2000 });
+        // Увеличиваем область просмотра, чтобы ВК "думал", что мы видим всё сразу
+        await page.setViewport({ width: 1280, height: 5000 });
         
         console.log('VK: Loading page...');
-        await page.goto('https://vkvideo.ru/@fresh_clips/all/', { waitUntil: 'networkidle2', timeout: 60000 });
+        await page.goto('https://vkvideo.ru/@fresh_clips/all', { waitUntil: 'networkidle2', timeout: 60000 });
 
-        // --- БЛОК ПРОКРУТКИ (SCROLLING) ---
-        console.log('VK: Scrolling to load images...');
-        await page.evaluate(async () => {
-            await new Promise((resolve) => {
-                let totalHeight = 0;
-                let distance = 600; // Прокручиваем по 600 пикселей
-                let timer = setInterval(() => {
-                    window.scrollBy(0, distance);
-                    totalHeight += distance;
-                    // Прокручиваем 5 раз (хватит для первых 50-60 клипов)
-                    if(totalHeight >= 3000){
-                        clearInterval(timer);
-                        resolve();
-                    }
-                }, 400); // Пауза между скроллами
-            });
-        });
-
-        // Ждем еще чуть-чуть после скролла, чтобы картинки успели отрисоваться
-        await new Promise(r => setTimeout(r, 4000));
+        // Даем время на первичную прогрузку
+        await new Promise(r => setTimeout(r, 5000));
         
+        // Прокрутка для активации ленивой загрузки
+        console.log('VK: Scrolling to activate content...');
+        await page.evaluate(() => window.scrollBy(0, 4000));
+        await new Promise(r => setTimeout(r, 3000));
+
         const clips = await page.evaluate(() => {
             let res = [];
-            // Ищем все карточки видео
-            document.querySelectorAll('a').forEach(link => {
-                const href = link.href || '';
+            // Ищем все ссылки на видео
+            const links = document.querySelectorAll('a[href*="/video"]');
+            
+            links.forEach(link => {
+                const href = link.href;
                 const match = href.match(/\/video(-?\d+)_(\d+)/);
                 
                 if (match) {
-                    // Ищем название в aria-label (оно там самое полное)
-                    let videoTitle = link.getAttribute('aria-label') || link.innerText.split('\n')[0] || 'VK Clip';
-                    
-                    // Если в название попало время (напр. "3:04"), игнорируем его
-                    if (/^\d+:\d+$/.test(videoTitle.trim())) videoTitle = 'VK Clip';
+                    // 1. ПОИСК НАЗВАНИЯ (из атрибутов)
+                    let title = link.getAttribute('aria-label') || link.title || "";
+                    if (!title || /^\d+:\d+$/.test(title.trim())) {
+                        const innerTitle = link.querySelector('[class*="title"], [class*="name"]');
+                        if (innerTitle) title = innerTitle.innerText;
+                    }
+                    if (!title) title = "VK Clip 🔥";
 
-                    // Ищем картинку (img) внутри ссылки
-                    let imgUrl = '';
+                    // 2. ГЛУБОКИЙ ПОИСК КАРТИНКИ
+                    let imgUrl = "";
+                    
+                    // Способ А: Тег img
                     const imgTag = link.querySelector('img');
-                    if (imgTag && imgTag.src && !imgTag.src.includes('base64')) {
+                    if (imgTag && imgTag.src && !imgTag.src.includes('data:image')) {
                         imgUrl = imgTag.src;
                     }
-
-                    // Если нашли хоть какое-то превью, добавляем в список
-                    if (imgUrl) {
-                        res.push({
-                            title: videoTitle.trim(),
-                            url: href,
-                            playerUrl: `https://vk.com/video_ext.php?oid=${match[1]}&id=${match[2]}&hd=2&autoplay=1`,
-                            image: imgUrl
+                    
+                    // Способ Б: Поиск в стилях (background-image)
+                    if (!imgUrl) {
+                        const allDivs = link.querySelectorAll('div');
+                        allDivs.forEach(div => {
+                            const bg = div.style.backgroundImage;
+                            if (bg && bg.includes('url')) {
+                                const m = bg.match(/url\(["']?([^"']+)["']?\)/);
+                                if (m) imgUrl = m[1];
+                            }
                         });
                     }
+
+                    // Способ В: Поиск превью через вычисленные стили, если ВК спрятал их в классы
+                    if (!imgUrl) {
+                        const thumb = link.querySelector('[class*="thumb"], [class*="image"]');
+                        if (thumb) {
+                            const style = window.getComputedStyle(thumb);
+                            const bg = style.backgroundImage;
+                            if (bg && bg.includes('url')) {
+                                const m = bg.match(/url\(["']?([^"']+)["']?\)/);
+                                if (m) imgUrl = m[1];
+                            }
+                        }
+                    }
+
+                    res.push({
+                        title: title.replace(/\n/g, ' ').trim(),
+                        url: href,
+                        playerUrl: `https://vk.com/video_ext.php?oid=${match[1]}&id=${match[2]}&hd=2&autoplay=1`,
+                        image: imgUrl // Сохраняем, даже если пустая (потом разберемся)
+                    });
                 }
             });
             return res;
         });
 
-        // Убираем дубликаты по playerUrl
+        // Убираем дубликаты
         const uniqueVK = Array.from(new Map(clips.map(item => [item.playerUrl, item])).values());
+        
+        // Финальная проверка: если картинки всё же нет, подставим заглушку, чтобы сайт не был пустым
+        const finalVK = uniqueVK.map(item => ({
+            ...item,
+            image: item.image || 'https://vk.com/images/video_empty.png'
+        }));
 
-        fs.writeFileSync('vk_clips.json', JSON.stringify(uniqueVK.slice(0, 70), null, 4));
-        console.log(`VK: Saved ${uniqueVK.length} clips with images!`);
+        fs.writeFileSync('vk_clips.json', JSON.stringify(finalVK.slice(0, 100), null, 4));
+        console.log(`VK: Found ${finalVK.length} clips.`);
         
     } catch (e) { 
         console.error('VK Error:', e.message); 
