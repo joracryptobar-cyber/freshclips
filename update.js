@@ -76,7 +76,7 @@ async function updateVKClips() {
                 let timer = setInterval(() => {
                     window.scrollBy(0, distance);
                     totalHeight += distance;
-                    if(totalHeight >= 15000){ clearInterval(timer); resolve(); }
+                    if(totalHeight >= 50000){ clearInterval(timer); resolve(); }
                 }, 400); 
             });
         });
