@@ -8,7 +8,6 @@ const VK_API_KEY = 'ВСТАВЬТЕ_СЮДА_ВАШ_КЛЮЧ';
 const VK_OWNER_ID = '-1946517'; 
 // ==========================================
 
-// 1. СБОРЩИК TELEGRAM
 async function updateTelegramClips() {
     try {
         console.log('Starting Telegram extraction...');
@@ -21,44 +20,47 @@ async function updateTelegramClips() {
             const html = await response.text();
             const $ = cheerio.load(html);
             
-            // ВАЖНО: Временный массив для правильной сортировки дат внутри страницы!
             let pageClips = []; 
 
             $('.tgme_widget_message').each((index, el) => {
                 const videoThumb = $(el).find('.tgme_widget_message_video_thumb');
-                if (videoThumb.length > 0) {
-                    const style = videoThumb.attr('style') || '';
-                    const imgMatch = style.match(/url\(['"]?([^'")]+)['"]?\)/);
-                    const image = imgMatch ? imgMatch[1] : '';
-                    
-                    const postUrl = $(el).find('.tgme_widget_message_date').attr('href') || '';
-                    
-                    // Поиск точной даты
-                    let timestamp = new Date().toISOString();
-                    const timeEl = $(el).find('time'); 
-                    if (timeEl.length > 0 && timeEl.attr('datetime')) { 
-                        timestamp = timeEl.attr('datetime'); 
-                    }
+                if (videoThumb.length === 0) return; // Берем только видео
 
-                    // Сбор просмотров (работает!)
-                    let views = '';
-                    const viewsEl = $(el).find('.tgme_widget_message_views');
-                    if (viewsEl.length > 0) { views = viewsEl.text().trim(); }
-                    
-                    let title = 'TG Clip 🔥';
-                    const textEl = $(el).find('.tgme_widget_message_text');
-                    if (textEl.length > 0) {
-                        let rawText = textEl.text();
-                        rawText = rawText.replace('Премьера клипа! ', '').split('#')[0].trim();
-                        title = rawText.length > 60 ? rawText.substring(0, 57) + '...' : rawText;
-                        if (!title) title = 'TG Clip 🔥';
-                    }
-
-                    pageClips.push({ title, url: postUrl, image, timestamp, views });
+                // 1. Ссылка
+                const postUrl = $(el).find('.tgme_widget_message_date').attr('href') || '';
+                
+                // 2. Картинка
+                const style = videoThumb.attr('style') || '';
+                const imgMatch = style.match(/url\(['"]?([^'")]+)['"]?\)/);
+                const image = imgMatch ? imgMatch[1] : '';
+                
+                // 3. ДАТА (Рентген-поиск: ищем строку datetime="2024-..." в любом месте кода)
+                const elHtml = $(el).html() || '';
+                let timestamp = new Date().toISOString(); // Резерв
+                const dateMatch = elHtml.match(/datetime=['"]([^'"]+)['"]/);
+                if (dateMatch && dateMatch[1]) {
+                    timestamp = dateMatch[1];
                 }
+
+                // 4. ПРОСМОТРЫ (Рентген-поиск просмотров)
+                let views = '';
+                const viewsMatch = elHtml.match(/tgme_widget_message_views[^>]*>([^<]+)</);
+                if (viewsMatch && viewsMatch[1]) {
+                    views = viewsMatch[1].trim();
+                }
+                
+                // 5. Название
+                let title = 'TG Clip 🔥';
+                const textEl = $(el).find('.tgme_widget_message_text');
+                if (textEl.length > 0) {
+                    let rawText = textEl.text().replace('Премьера клипа! ', '').split('#')[0].trim();
+                    title = rawText.length > 60 ? rawText.substring(0, 57) + '...' : rawText;
+                    if (!title) title = 'TG Clip 🔥';
+                }
+
+                pageClips.push({ title, url: postUrl, image, timestamp, views });
             });
             
-            // ИСПРАВЛЕНИЕ: Добавляем клипы в правильном порядке (от новых к старым)
             allClips = allClips.concat(pageClips.reverse());
             
             const moreLink = $('.tme_messages_more').attr('href');
@@ -66,24 +68,21 @@ async function updateTelegramClips() {
             url = 'https://t.me' + moreLink;
         }
         
-        // ЖЕЛЕЗОБЕТОННАЯ СОРТИРОВКА ВСЕГО МАССИВА ПО ДАТЕ (от свежих к старым)
+        // Сортируем все клипы строго по дате (от новых к старым)
         allClips.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
         
         fs.writeFileSync('clips.json', JSON.stringify(allClips, null, 4));
-        console.log(`TG: Saved ${allClips.length} clips with perfectly sorted dates!`);
+        console.log(`TG: Saved ${allClips.length} clips with PERFECT dates and views!`);
     } catch (e) { console.error('TG Error:', e); }
 }
 
-// 2. СБОРЩИК ВКОНТАКТЕ (API)
 async function updateVKClips() {
     console.log('Starting VK extraction via API...');
-    
     if (VK_API_KEY === 'ВСТАВЬТЕ_СЮДА_ВАШ_КЛЮЧ' || !VK_API_KEY) {
         console.error('VK ERROR: Вы не вставили сервисный ключ!');
         fs.writeFileSync('vk_clips.json', JSON.stringify([])); 
         return;
     }
-
     try {
         const videoUrl = `https://api.vk.com/method/video.get?owner_id=${VK_OWNER_ID}&count=200&v=5.131&access_token=${VK_API_KEY}`;
         const videoRes = await fetch(videoUrl).then(r => r.json());
@@ -98,7 +97,6 @@ async function updateVKClips() {
         if (videoRes.response && videoRes.response.items) {
             for (let v of videoRes.response.items) {
                 if (v.type !== 'video') continue;
-
                 let title = v.title || 'VK Clip 🔥';
                 if (/^\d+:\d+$/.test(title.trim())) title = 'VK Clip 🔥';
 
@@ -116,19 +114,13 @@ async function updateVKClips() {
                 }
 
                 vkClips.push({
-                    title: title,
-                    url: postUrl,
-                    playerUrl: playerUrl,
-                    image: image,
-                    views: viewsStr,
-                    timestamp: new Date(v.date * 1000).toISOString()
+                    title: title, url: postUrl, playerUrl: playerUrl, image: image,
+                    views: viewsStr, timestamp: new Date(v.date * 1000).toISOString()
                 });
             }
         }
-
         fs.writeFileSync('vk_clips.json', JSON.stringify(vkClips, null, 4));
-        console.log(`VK: Successfully saved ${vkClips.length} clips with perfect data!`);
-
+        console.log(`VK: Successfully saved ${vkClips.length} clips!`);
     } catch (e) {
         console.error('VK Network Error:', e.message);
         fs.writeFileSync('vk_clips.json', JSON.stringify([]));
