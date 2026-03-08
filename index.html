@@ -52,7 +52,6 @@
             padding: 15px 0 10px 0; margin-bottom: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); 
         }
         
-        /* Исправленная сетка для поиска и сортировки */
         .search-sort-row { display: flex; gap: 12px; margin-bottom: 15px; align-items: center; }
         .search-wrapper { position: relative; flex-grow: 1; display: flex; align-items: center; }
         
@@ -114,6 +113,7 @@
         .meta-item { display: flex; align-items: center; gap: 4px; }
         .no-results { text-align: center; padding: 50px; color: var(--text-muted); grid-column: 1 / -1; }
 
+        .loader-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 50px 0; gap: 15px; color: var(--text-muted); }
         .infinite-scroll-sentinel { width: 100%; height: 50px; display: flex; align-items: center; justify-content: center; padding: 20px 0; color: var(--text-muted); }
         .spinner { width: 30px; height: 30px; border: 3px solid rgba(140, 198, 63, 0.2); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
@@ -151,7 +151,6 @@
             .profile-actions { grid-area: actions; flex-direction: column; width: 145px; gap: 8px; margin-top: 0; justify-self: end; margin-right: 10%; }
             .btn { width: 100%; padding: 8px 10px; font-size: 11px; gap: 6px; } .btn-icon { width: 18px; height: 18px; }
             
-            /* ЖЕЛЕЗОБЕТОННАЯ СЕТКА ПОИСКА ДЛЯ ТЕЛЕФОНА */
             .search-sort-row { flex-direction: column; gap: 12px; align-items: stretch; }
             .search-wrapper { width: 100%; }
             .sort-select { width: 100%; min-width: 100%; padding: 14px 20px; } 
@@ -162,7 +161,6 @@
             .meta-info { font-size: 10px; flex-direction: column; align-items: flex-start; gap: 3px; } 
             .tabs-container { padding: 5px; border-radius: 20px; } .tab-btn { padding: 10px 15px; font-size: 13px; border-radius: 15px;}
             
-            /* Адаптация плеера для телефона */
             .modal-content { border-radius: 8px; } .modal-iframe { border-radius: 8px; } .modal-close { top: -35px; right: 0; font-size: 30px; }
             #back-to-top { bottom: 20px; right: 20px; width: 45px; height: 45px; }
         }
@@ -227,12 +225,13 @@
             <span id="results-count" style="font-size: 14px; font-weight: normal; color: var(--text-muted);"></span>
         </h2>
         
-        <div class="grid" id="clips-grid">
-            <div class="loader-container" id="loader">
-                <div class="spinner"></div>
-                <div>Загрузка базы клипов...</div>
-            </div>
+        <div class="loader-container" id="loader">
+            <div class="spinner"></div>
+            <div>Загрузка базы клипов...</div>
         </div>
+
+        <div class="grid" id="clips-grid">
+            </div>
 
         <div id="scroll-sentinel" class="infinite-scroll-sentinel" style="display: none;">
             <div class="spinner" id="main-spinner"></div>
@@ -283,7 +282,7 @@
                 
                 try {
                     const resTg = await fetch('clips.json?v=' + cacheBuster);
-                    tgData = await resTg.json();
+                    if(resTg.ok) tgData = await resTg.json();
                 } catch(e) { console.error('TG error', e); }
 
                 try {
@@ -295,7 +294,8 @@
                 observer.observe(document.getElementById('scroll-sentinel'));
                 
             } catch (error) {
-                document.getElementById('loader').innerHTML = 'Ошибка загрузки данных.';
+                const loader = document.getElementById('loader');
+                if (loader) loader.innerHTML = 'Ошибка загрузки данных.';
             }
         }
 
@@ -314,6 +314,8 @@
             document.getElementById('sort-select').value = 'newest';
             
             if (currentActiveData.length === 0 && tabId === 'vk') {
+                const loader = document.getElementById('loader');
+                if(loader) loader.style.display = 'none';
                 document.getElementById('clips-grid').innerHTML = '<div class="no-results">Загрузка клипов ВКонтакте... Настройте парсер.</div>';
                 document.getElementById('scroll-sentinel').style.display = 'none';
                 document.getElementById('month-filters').innerHTML = '';
@@ -448,8 +450,11 @@
             else if (query) { headerText.innerText = 'Результаты поиска'; }
             else { headerText.innerText = activeTab === 'tg' ? 'Клипы из Telegram' : 'Клипы ВКонтакте'; }
 
+            // Безопасное скрытие лоадера перед очисткой сетки
+            const loader = document.getElementById('loader');
+            if (loader) loader.style.display = 'none';
+            
             document.getElementById('clips-grid').innerHTML = '';
-            document.getElementById('loader').style.display = 'none';
             currentDisplayed = 0;
             
             if (filteredClipsData.length === 0) {
