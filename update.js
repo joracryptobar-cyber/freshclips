@@ -50,7 +50,7 @@ async function updateVKClips() {
         
         console.log('VK: Loading page...');
         // Пробуем зайти на страницу видео (без /all для стабильности)
-        await page.goto('https://vkvideo.ru/@fresh_clips/all', { waitUntil: 'networkidle2', timeout: 60000 });
+        await page.goto('https://vkvideo.ru/@fresh_clips/all/', { waitUntil: 'networkidle2', timeout: 60000 });
         
         console.log('VK: Scrolling...');
         // Простая прокрутка вниз
