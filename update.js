@@ -48,7 +48,7 @@ async function updateVKClips() {
         });
         const page = await browser.newPage();
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36');
-        await page.goto('https://vkvideo.ru/@fresh_clips', { waitUntil: 'networkidle2', timeout: 60000 });
+        await page.goto('https://vkvideo.ru/@fresh_clips/all', { waitUntil: 'networkidle2', timeout: 60000 });
         await new Promise(r => setTimeout(r, 5000));
         
         const clips = await page.evaluate(() => {
