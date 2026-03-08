@@ -2,7 +2,7 @@ const fs = require('fs');
 const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
 
-// 1. TELEGRAM EXTRACTION
+// 1. TELEGRAM EXTRACTION (Fast and lightweight)
 async function updateTelegramClips() {
     try {
         console.log('--- Starting Telegram extraction ---');
@@ -56,9 +56,18 @@ async function updateTelegramClips() {
     } catch (e) { console.error('--- TG Error ---', e); }
 }
 
-// 2. VK EXTRACTION
+// 2. VK EXTRACTION (Smart Incremental Update)
 async function updateVKClips() {
-    console.log('--- Starting VK extraction (Puppeteer) ---');
+    console.log('--- Starting VK (Smart Update) ---');
+    
+    // Read existing database
+    let existingClips = [];
+    if (fs.existsSync('vk_clips.json')) {
+        try { 
+            existingClips = JSON.parse(fs.readFileSync('vk_clips.json', 'utf8')); 
+        } catch(e) { console.error('--- Could not read old vk_clips.json ---'); }
+    }
+    
     let browser;
     try {
         browser = await puppeteer.launch({ 
@@ -68,6 +77,7 @@ async function updateVKClips() {
         const page = await browser.newPage();
         await page.goto('https://vkvideo.ru/@fresh_clips/all', { waitUntil: 'networkidle2', timeout: 60000 });
 
+        // VERY SHORT SCROLL: Only ~3000px instead of 15000px (fast!)
         await page.evaluate(async () => {
             await new Promise((resolve) => {
                 let totalHeight = 0;
@@ -75,14 +85,14 @@ async function updateVKClips() {
                 let timer = setInterval(() => {
                     window.scrollBy(0, distance);
                     totalHeight += distance;
-                    if(totalHeight >= 15000){ clearInterval(timer); resolve(); }
+                    if(totalHeight >= 3000){ clearInterval(timer); resolve(); }
                 }, 400); 
             });
         });
 
-        await new Promise(r => setTimeout(r, 4000));
+        await new Promise(r => setTimeout(r, 2000));
 
-        const vkClips = await page.evaluate(() => {
+        const newScraped = await page.evaluate(() => {
             let results = [];
             const cards = document.querySelectorAll('[data-testid="catalog_item_video"]');
             
@@ -154,23 +164,50 @@ async function updateVKClips() {
             return Array.from(new Map(results.map(i => [i.playerUrl, i])).values());
         });
 
-        fs.writeFileSync('vk_clips.json', JSON.stringify(vkClips, null, 4));
-        console.log('--- VK: Success! ---');
+        // 3. MERGE DATABASES
+        let clipsMap = new Map();
+        
+        // Put all old clips in the map
+        existingClips.forEach(c => clipsMap.set(c.playerUrl, c));
+        
+        let newAdded = 0;
+        let viewsUpdated = 0;
+
+        // Process newly scraped clips
+        newScraped.forEach(c => {
+            if (clipsMap.has(c.playerUrl)) {
+                // Clip exists: update views and text, keep original timestamp
+                let oldClip = clipsMap.get(c.playerUrl);
+                oldClip.views = c.views;
+                oldClip.dateText = c.dateText;
+                clipsMap.set(c.playerUrl, oldClip);
+                viewsUpdated++;
+            } else {
+                // New clip: add to map
+                clipsMap.set(c.playerUrl, c);
+                newAdded++;
+            }
+        });
+
+        // Convert map back to array and sort by date
+        let finalArr = Array.from(clipsMap.values());
+        finalArr.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        fs.writeFileSync('vk_clips.json', JSON.stringify(finalArr, null, 4));
+        console.log(`--- VK: Added ${newAdded} new clips. Updated views for ${viewsUpdated}. Total: ${finalArr.length} ---`);
+        
     } catch (e) { console.error('--- VK Error ---', e.message); } 
     finally { if (browser) await browser.close(); }
 }
 
-// 3. TASK MANAGER WITH 12-HOUR DELAY FOR VK
+// 4. TASK MANAGER (with 12 hour logic)
 async function runTasks() {
-    // Telegram is fast and lightweight, run it every time
     await updateTelegramClips();
 
-    // 12 hours in milliseconds
     const TWELVE_HOURS_MS = 12 * 60 * 60 * 1000; 
     const VK_RUN_FILE = 'vk_last_run.txt';
     let shouldRunVK = true;
 
-    // Check when VK was last updated
     if (fs.existsSync(VK_RUN_FILE)) {
         const lastRunStr = fs.readFileSync(VK_RUN_FILE, 'utf8');
         const lastRunMs = parseInt(lastRunStr, 10);
@@ -185,10 +222,8 @@ async function runTasks() {
         }
     }
 
-    // Run VK if 12 hours have passed or if it has never run before
     if (shouldRunVK) {
         await updateVKClips();
-        // Save the current time for the next check
         fs.writeFileSync(VK_RUN_FILE, Date.now().toString(), 'utf8');
     }
 }
