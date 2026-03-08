@@ -2,12 +2,10 @@ const fs = require('fs');
 const cheerio = require('cheerio');
 
 // ==========================================
-// ВАШ СЕРВИСНЫЙ КЛЮЧ ВКОНТАКТЕ (API)
-// ==========================================
 const VK_API_KEY = 'vk1.a.7ge6OqgZ6Zt5LorZXDdQeqSeycIi13axxrdZgriCp3V3VhEF3f1BHkLe3RJpJuhdaqbW92UoknxE1mQfZjqALBPGlXXPyMd5-NL_q9oOjthVy9urKttkwKhwNTcbvvWmf3qDAhvqxzgqE6skj3Rl4tDP2HwRDJnWPIa0OUia3BSdx69C4UnH32vnGiRR-cKdycpmUq2ns3p8drk9eCHohA&expires_in=86400&user_id=15322444'; 
-const VK_DOMAIN = 'fresh_clips'; // Ваш канал
+const VK_OWNER_ID = '-1946517'; // Точный ID вашей группы!
+// ==========================================
 
-// 1. СБОРЩИК TELEGRAM
 async function updateTelegramClips() {
     try {
         console.log('Starting Telegram extraction...');
@@ -37,54 +35,43 @@ async function updateTelegramClips() {
     } catch (e) { console.error('TG Error:', e); }
 }
 
-// 2. СБОРЩИК ВКОНТАКТЕ (API)
 async function updateVKClips() {
     console.log('Starting VK extraction via API...');
     
     if (VK_API_KEY === 'ВСТАВЬТЕ_СЮДА_ВАШ_КЛЮЧ' || !VK_API_KEY) {
-        console.error('VK ERROR: Вы не вставили сервисный ключ в код!');
+        console.error('VK ERROR: Вы не вставили сервисный ключ!');
         fs.writeFileSync('vk_clips.json', JSON.stringify([])); 
         return;
     }
 
     try {
-        // Шаг 1: Конвертируем имя группы (fresh_clips) в числовой ID
-        const resolveUrl = `https://api.vk.com/method/utils.resolveScreenName?screen_name=${VK_DOMAIN}&v=5.131&access_token=${VK_API_KEY}`;
-        const resolveRes = await fetch(resolveUrl).then(r => r.json());
-        
-        let ownerId = null;
-        if (resolveRes.response && resolveRes.response.object_id) {
-            ownerId = resolveRes.response.type === 'group' ? -resolveRes.response.object_id : resolveRes.response.object_id;
-        }
+        // Запрашиваем видео напрямую по ID
+        const videoUrl = `https://api.vk.com/method/video.get?owner_id=${VK_OWNER_ID}&count=100&v=5.131&access_token=${VK_API_KEY}`;
+        const videoRes = await fetch(videoUrl).then(r => r.json());
 
-        if (!ownerId) {
-            console.error('VK ERROR: Не удалось найти группу по этому адресу.');
+        // Проверка на ошибку самого ключа
+        if (videoRes.error) {
+            console.error('VK API Error:', videoRes.error.error_msg);
+            fs.writeFileSync('vk_clips.json', JSON.stringify([]));
             return;
         }
-
-        // Шаг 2: Получаем последние 100 видео
-        const videoUrl = `https://api.vk.com/method/video.get?owner_id=${ownerId}&count=100&v=5.131&access_token=${VK_API_KEY}`;
-        const videoRes = await fetch(videoUrl).then(r => r.json());
 
         let vkClips = [];
         if (videoRes.response && videoRes.response.items) {
             for (let v of videoRes.response.items) {
-                if (v.type !== 'video') continue; // Пропускаем прямые трансляции
+                if (v.type !== 'video') continue;
 
                 let title = v.title || 'VK Clip 🔥';
-                // На всякий случай чистим названия, состоящие только из времени
                 if (/^\d+:\d+$/.test(title.trim())) title = 'VK Clip 🔥';
 
                 const postUrl = `https://vkvideo.ru/video${v.owner_id}_${v.id}`;
                 const playerUrl = `https://vk.com/video_ext.php?oid=${v.owner_id}&id=${v.id}&hd=2&autoplay=1`;
                 
-                // Форматируем просмотры (например: 1.5M, 12.3K)
                 let views = v.views || 0;
                 let viewsStr = views.toString();
                 if (views >= 1000000) viewsStr = (views / 1000000).toFixed(1) + 'M';
                 else if (views >= 1000) viewsStr = (views / 1000).toFixed(1) + 'K';
 
-                // Достаем картинку самого высокого разрешения
                 let image = 'https://vk.com/images/video_empty.png';
                 if (v.image && v.image.length > 0) {
                     image = v.image[v.image.length - 1].url; 
@@ -105,7 +92,7 @@ async function updateVKClips() {
         console.log(`VK: Successfully saved ${vkClips.length} clips with perfect data!`);
 
     } catch (e) {
-        console.error('VK API Error:', e.message);
+        console.error('VK Network Error:', e.message);
         fs.writeFileSync('vk_clips.json', JSON.stringify([]));
     }
 }
