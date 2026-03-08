@@ -21,6 +21,9 @@ async function updateTelegramClips() {
             const html = await response.text();
             const $ = cheerio.load(html);
             
+            // ВАЖНО: Временный массив для правильной сортировки дат внутри страницы!
+            let pageClips = []; 
+
             $('.tgme_widget_message').each((index, el) => {
                 const videoThumb = $(el).find('.tgme_widget_message_video_thumb');
                 if (videoThumb.length > 0) {
@@ -30,13 +33,14 @@ async function updateTelegramClips() {
                     
                     const postUrl = $(el).find('.tgme_widget_message_date').attr('href') || '';
                     
-                    // ИСПРАВЛЕНО: Железобетонный поиск даты
+                    // Поиск точной даты
                     let timestamp = new Date().toISOString();
-                    const timeEl = $(el).find('time'); // Ищем любой тег time в посте
+                    const timeEl = $(el).find('time'); 
                     if (timeEl.length > 0 && timeEl.attr('datetime')) { 
                         timestamp = timeEl.attr('datetime'); 
                     }
 
+                    // Сбор просмотров (работает!)
                     let views = '';
                     const viewsEl = $(el).find('.tgme_widget_message_views');
                     if (viewsEl.length > 0) { views = viewsEl.text().trim(); }
@@ -50,15 +54,23 @@ async function updateTelegramClips() {
                         if (!title) title = 'TG Clip 🔥';
                     }
 
-                    allClips.push({ title, url: postUrl, image, timestamp, views });
+                    pageClips.push({ title, url: postUrl, image, timestamp, views });
                 }
             });
+            
+            // ИСПРАВЛЕНИЕ: Добавляем клипы в правильном порядке (от новых к старым)
+            allClips = allClips.concat(pageClips.reverse());
+            
             const moreLink = $('.tme_messages_more').attr('href');
             if (!moreLink) break; 
             url = 'https://t.me' + moreLink;
         }
+        
+        // ЖЕЛЕЗОБЕТОННАЯ СОРТИРОВКА ВСЕГО МАССИВА ПО ДАТЕ (от свежих к старым)
+        allClips.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        
         fs.writeFileSync('clips.json', JSON.stringify(allClips, null, 4));
-        console.log(`TG: Saved ${allClips.length} clips with exact dates!`);
+        console.log(`TG: Saved ${allClips.length} clips with perfectly sorted dates!`);
     } catch (e) { console.error('TG Error:', e); }
 }
 
@@ -109,7 +121,6 @@ async function updateVKClips() {
                     playerUrl: playerUrl,
                     image: image,
                     views: viewsStr,
-                    // Время ВК всегда приходило правильным (в формате Unix)
                     timestamp: new Date(v.date * 1000).toISOString()
                 });
             }
