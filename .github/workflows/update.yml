@@ -20,8 +20,8 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Установка библиотеки для парсинга HTML
-        run: npm install cheerio
+      - name: Установка библиотек
+        run: npm install cheerio puppeteer
 
       - name: Запуск парсера
         run: node update.js
