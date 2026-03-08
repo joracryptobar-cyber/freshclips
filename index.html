@@ -240,7 +240,6 @@
 
         async function loadAllData() {
             try {
-                // ИСПРАВЛЕНИЕ №1: Убрана 5-минутная задержка. Файл обновляется моментально!
                 const cacheBuster = Date.now(); 
                 
                 try {
@@ -328,10 +327,12 @@
             currentActiveData.forEach(clip => {
                 if (clip.timestamp) {
                     const d = new Date(clip.timestamp);
-                    // ИСПРАВЛЕНИЕ №2: Форматируем месяц с нулем впереди (02 вместо 2), чтобы сортировка не сбивалась!
-                    const monthIndexStr = String(d.getMonth()).padStart(2, '0');
-                    const monthStr = `${d.getFullYear()}-${monthIndexStr}`;
-                    monthSet.add(monthStr);
+                    // Проверяем, является ли timestamp валидной датой (для TG)
+                    if (!isNaN(d.getTime())) {
+                        const monthIndexStr = String(d.getMonth()).padStart(2, '0');
+                        const monthStr = `${d.getFullYear()}-${monthIndexStr}`;
+                        monthSet.add(monthStr);
+                    }
                 }
             });
 
@@ -346,7 +347,6 @@
             
             Array.from(monthSet).sort().reverse().forEach(m => {
                 const [year, monthIndex] = m.split('-');
-                // Убираем возможный ноль впереди для правильного поиска в массиве monthNames
                 const label = `${monthNames[parseInt(monthIndex, 10)]} ${year}`;
                 monthContainer.innerHTML += `<div class="filter-chip" id="month-${m}" onclick="setMonthFilter('${m}')">${label}</div>`;
             });
@@ -404,9 +404,13 @@
                 let matchesMonth = true;
                 if (activeMonth && clip.timestamp) {
                     const d = new Date(clip.timestamp);
-                    // ИСПРАВЛЕНИЕ №3: Применяем тот же формат с нулем для сравнения
-                    const monthIndexStr = String(d.getMonth()).padStart(2, '0');
-                    matchesMonth = (`${d.getFullYear()}-${monthIndexStr}` === activeMonth);
+                    // Если это валидная дата, фильтруем по месяцу. Если текст (ВК), пропускаем фильтр
+                    if (!isNaN(d.getTime())) {
+                        const monthIndexStr = String(d.getMonth()).padStart(2, '0');
+                        matchesMonth = (`${d.getFullYear()}-${monthIndexStr}` === activeMonth);
+                    } else {
+                        matchesMonth = true; 
+                    }
                 }
                 let matchesFav = true;
                 if (showFavoritesOnly) { matchesFav = savedFavorites.includes(clip.url); }
@@ -459,10 +463,19 @@
                 let dateHtml = '';
                 if (clip.timestamp) {
                     const d = new Date(clip.timestamp);
-                    const day = String(d.getDate()).padStart(2, '0');
-                    const month = String(d.getMonth() + 1).padStart(2, '0');
-                    const year = String(d.getFullYear()).slice(-2); 
-                    dateHtml = `<div class="meta-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> ${day}.${month}.${year}</div>`;
+                    let displayDateText = '';
+                    
+                    // УМНАЯ ПРОВЕРКА: Если дата валидная (Telegram), форматируем. Если нет (ВК), берем текст.
+                    if (!isNaN(d.getTime())) {
+                        const day = String(d.getDate()).padStart(2, '0');
+                        const month = String(d.getMonth() + 1).padStart(2, '0');
+                        const year = String(d.getFullYear()).slice(-2); 
+                        displayDateText = `${day}.${month}.${year}`;
+                    } else {
+                        displayDateText = clip.timestamp; // "1 день назад"
+                    }
+                    
+                    dateHtml = `<div class="meta-item"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> ${displayDateText}</div>`;
                 }
 
                 const safeTitle = clip.title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
